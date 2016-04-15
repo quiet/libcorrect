@@ -186,6 +186,17 @@ typedef struct {
     unsigned int order;
 } polynomial_t;
 
+polynomial_t polynomial_create(unsigned int order) {
+    polynomial_t polynomial;
+    polynomial.coeff = malloc(sizeof(field_element_t) * (order + 1));
+    polynomial.order = order;
+    return polynomial;
+}
+
+void polynomial_destroy(polynomial_t polynomial) {
+    free(polynomial.coeff);
+}
+
 // if you want a full multiplication, then make res.order = l.order + r.order
 // but if you just care about a lower order, e.g. mul mod x^i, then you can select
 //    fewer coefficients
@@ -280,9 +291,41 @@ field_element_t polynomial_eval(field_t field, polynomial_t poly, field_element_
     return res;
 }
 
+typedef struct {
+    size_t block_length;
+    size_t message_length;
+    size_t min_distance;
+
+    field_t field;
+
+    polynomial_t generator;
+    field_element_t *generator_roots;
+
+    polynomial_t encoded_polynomial;
+    polynomial_t encoded_remainder;
+
+    field_element_t *syndromes;
+    polynomial_t received_polynomial;
+    polynomial_t error_locator;
+    field_element_t *error_roots;
+    field_element_t *error_vals;
+    field_logarithm_t *error_locations;
+
+    // scratch
+    // (do no allocations at steady state)
+
+    // used during find_error_locator
+    polynomial_t last_error_locator;
+
+    // used during error value search
+    polynomial_t error_evaluator;
+    polynomial_t error_locator_derivative;
+
+} correct_reed_solomon;
+
 // coeff must be of size nroots + 1
 // e.g. 2 roots (x + alpha)(x + alpha^2) yields a poly with 3 terms x^2 + g0*x + g1
-void buildgenerator(field_t field, unsigned int nroots, polynomial_t generator, field_element_t *roots) {
+static void reed_solomon_build_generator(field_t field, unsigned int nroots, polynomial_t generator, field_element_t *roots) {
     // generator has order 2*t
     // of form (x + alpha^1)(x + alpha^2)...(x - alpha^2*t)
     for (unsigned int i = 0; i < nroots; i++) {
@@ -328,32 +371,90 @@ void buildgenerator(field_t field, unsigned int nroots, polynomial_t generator, 
     free(r[1].coeff);
 }
 
+correct_reed_solomon *correct_reed_solomon_create(field_operation_t primitive_polynomial) {
+    correct_reed_solomon *rs = calloc(1, sizeof(correct_reed_solomon));
+    rs->field = field_create(primitive_polynomial);
+
+    rs->block_length = 255;
+    rs->message_length = 223;
+    rs->min_distance = rs->block_length - rs->message_length;
+
+    rs->generator = polynomial_create(rs->min_distance);
+    rs->generator_roots = malloc(rs->min_distance * sizeof(field_element_t));
+
+    reed_solomon_build_generator(rs->field, rs->min_distance, rs->generator, rs->generator_roots);
+
+    rs->encoded_polynomial = polynomial_create(rs->block_length - 1);
+    rs->encoded_remainder = polynomial_create(rs->block_length - 1);
+
+    // initialize decoder but don't allocate anything
+    rs->syndromes = NULL;
+
+    return rs;
+}
+
+ssize_t correct_reed_solomon_encode(correct_reed_solomon *rs, const uint8_t *msg, size_t msg_length, uint8_t *encoded) {
+    if (msg_length > rs->message_length) {
+        return -1;
+    }
+
+    for (unsigned int i = 0; i < msg_length; i++) {
+        // message goes from high order to low order but libcorrect polynomials go low to high
+        // so we reverse on the way in and on the way out
+        // we'd have to do a copy anyway so this reversal should be free
+        rs->encoded_polynomial.coeff[rs->encoded_polynomial.order - i] = msg[i];
+    }
+
+    // 0-fill the rest of the coefficients -- this length will always be > 0
+    // because the order of this poly is block_length and the msg_length <= message_length
+    // e.g. 255 and 223
+    memset(rs->encoded_polynomial.coeff, 0, (rs->encoded_polynomial.order + 1 - msg_length));
+
+    polynomial_mod(rs->field, rs->encoded_polynomial, rs->generator, rs->encoded_remainder);
+
+    // now return byte order to highest order to lowest order
+    for (unsigned int i = 0; i < rs->message_length; i++) {
+        encoded[i] = rs->encoded_polynomial.coeff[rs->encoded_polynomial.order - i];
+    }
+
+    for (unsigned int i = rs->message_length; i < rs->block_length; i++) {
+        encoded[i] = rs->encoded_remainder.coeff[rs->encoded_polynomial.order - i];
+    }
+
+    return rs->block_length;
+}
+
+static void reed_solomon_find_syndromes(field_t field, polynomial_t msgpoly, const field_element_t *generator_roots, field_element_t *syndromes, size_t min_distance) {
+    for (unsigned int i = 0; i < min_distance; i++) {
+        syndromes[i] = polynomial_eval(field, msgpoly, generator_roots[i]);
+    }
+}
+
 // returns number of errors
 // Berlekamp-Massey algorithm to find LFSR that describes syndromes
-unsigned int finderrorlocator(field_t field, field_element_t *syndromes, unsigned int syndrome_order, polynomial_t locator) {
+static unsigned int reed_solomon_find_error_locator(correct_reed_solomon *rs) {
     unsigned int numerrors = 0;
 
     // we'll update a polynomial with order <= syndrome_order
     // this polynomial's cofficients will be multiplied, itemwise,
     //   by the syndromes
-    memset(locator.coeff, 0, syndrome_order * sizeof(field_element_t));
+    memset(rs->error_locator.coeff, 0, (rs->min_distance + 1) * sizeof(field_element_t));
 
     // initialize to f(x) = 1
-    locator.coeff[0] = 1;
-    locator.order = 0;
+    rs->error_locator.coeff[0] = 1;
+    rs->error_locator.order = 0;
 
-    polynomial_t last_locator;
-    last_locator.coeff = malloc(syndrome_order * sizeof(field_element_t));
-    memcpy(last_locator.coeff, locator.coeff, syndrome_order * sizeof(field_element_t));
-    last_locator.order = locator.order;
+    memcpy(rs->last_error_locator.coeff, rs->error_locator.coeff, (rs->min_distance + 1) * sizeof(field_element_t));
+    rs->last_error_locator.order = rs->error_locator.order;
 
+    field_element_t discrepancy;
     field_element_t last_discrepancy = 1;
     unsigned int delay_length = 1;
 
-    for (unsigned int i = 0; i < syndrome_order; i++) {
-        field_element_t discrepancy = syndromes[i];
-        for (unsigned int j = 1; j <= locator.order; j++) {
-            discrepancy = field_add(field, discrepancy, field_mul(field, locator.coeff[j], syndromes[i - j]));
+    for (unsigned int i = 0; i < rs->min_distance; i++) {
+        discrepancy = rs->syndromes[i];
+        for (unsigned int j = 1; j <= rs->error_locator.order; j++) {
+            discrepancy = field_add(rs->field, discrepancy, field_mul(rs->field, rs->error_locator.coeff[j], rs->syndromes[i - j]));
         }
 
         if (!discrepancy) {
@@ -371,25 +472,25 @@ unsigned int finderrorlocator(field_t field, field_element_t *syndromes, unsigne
             // shift the last locator by the delay length, multiply by discrepancy,
             //   and divide by the last discrepancy
             // we move down because we're shifting up, and this prevents overwriting
-            for (int j = last_locator.order; j >= 0; j--) {
+            for (int j = rs->last_error_locator.order; j >= 0; j--) {
                 // the bounds here will be ok since we have a headroom of numerrors
-                last_locator.coeff[j + delay_length] = field_div(field, field_mul(field, last_locator.coeff[j], discrepancy), last_discrepancy);
+                rs->last_error_locator.coeff[j + delay_length] = field_div(rs->field, field_mul(rs->field, rs->last_error_locator.coeff[j], discrepancy), last_discrepancy);
             }
             for (int j = delay_length - 1; j >= 0; j--) {
-                last_locator.coeff[j] = 0;
+                rs->last_error_locator.coeff[j] = 0;
             }
 
             // locator = locator - last_locator
             // we will also update last_locator to be locator before this loop takes place
             field_element_t temp;
-            for (int j = 0; j <= (last_locator.order + delay_length); j++) {
-                temp = locator.coeff[j];
-                locator.coeff[j] = field_add(field, locator.coeff[j], last_locator.coeff[j]);
-                last_locator.coeff[j] = temp;
+            for (int j = 0; j <= (rs->last_error_locator.order + delay_length); j++) {
+                temp = rs->error_locator.coeff[j];
+                rs->error_locator.coeff[j] = field_add(rs->field, rs->error_locator.coeff[j], rs->last_error_locator.coeff[j]);
+                rs->last_error_locator.coeff[j] = temp;
             }
-            unsigned int temp_order = locator.order;
-            locator.order = last_locator.order + delay_length;
-            last_locator.order = temp_order;
+            unsigned int temp_order = rs->error_locator.order;
+            rs->error_locator.order = rs->last_error_locator.order + delay_length;
+            rs->last_error_locator.order = temp_order;
 
             // now last_locator is locator before we started,
             //   and locator is (locator - (discrepancy/last_discrepancy) * x^(delay_length) * last_locator)
@@ -405,21 +506,20 @@ unsigned int finderrorlocator(field_t field, field_element_t *syndromes, unsigne
         //    but we'll update locator as before
         // we're basically flattening the two loops from the previous case because
         //    we no longer need to update last_locator
-        for (int j = last_locator.order; j >= 0; j--) {
-            locator.coeff[j + delay_length] = field_add(field, locator.coeff[j + delay_length],
-                            field_div(field, field_mul(field, last_locator.coeff[j], discrepancy),
+        for (int j = rs->last_error_locator.order; j >= 0; j--) {
+            rs->error_locator.coeff[j + delay_length] = field_add(rs->field, rs->error_locator.coeff[j + delay_length],
+                            field_div(rs->field, field_mul(rs->field, rs->last_error_locator.coeff[j], discrepancy),
                             last_discrepancy));
         }
-        locator.order = last_locator.order + delay_length;
+        rs->error_locator.order = rs->last_error_locator.order + delay_length;
         delay_length++;
     }
-    free(last_locator.coeff);
     return numerrors;
 }
 
 // find the roots of the error locator polynomial
 // Chien search
-void factorizeerrorlocator(field_t field, polynomial_t locator, field_element_t *roots) {
+bool reed_solomon_factorize_error_locator(field_t field, polynomial_t locator, field_element_t *roots) {
     // normally it'd be tricky to find all the roots
     // but, the finite field is awfully finite...
     // just brute force search across every field element
@@ -430,47 +530,139 @@ void factorizeerrorlocator(field_t field, polynomial_t locator, field_element_t 
             root++;
         }
     }
+    // this is where we find out if we are have too many errors to recover from
+    // berlekamp-massey may have built an error locator that has 0 discrepancy
+    // on the syndromes but doesn't have enough roots
+    return root == locator.order;
 }
 
 // use error locator and syndromes to find the error evaluator polynomial
-void finderrorevaluator(field_t field, polynomial_t locator, polynomial_t syndromes, polynomial_t errorevaluator) {
+void reed_solomon_find_error_evaluator(field_t field, polynomial_t locator, polynomial_t syndromes, polynomial_t error_evaluator) {
     // the error evaluator, omega(x), is S(x)*Lamba(x) mod x^(2t)
     // where S(x) is a polynomial constructed from the syndromes
     //   S(1) + S(2)*x + ... + S(2t)*x(2t - 1)
     // and Lambda(x) is the error locator
-    polynomial_mul(field, locator, syndromes, errorevaluator);
+    polynomial_mul(field, locator, syndromes, error_evaluator);
 }
 
 // use error locator, error roots and syndromes to find the error values
 // that is, the elements in the finite field which can be added to the received
 //   polynomial at the locations of the error roots in order to produce the
 //   transmitted polynomial
-void finderrorvalues(field_t field, polynomial_t locator, field_element_t *syndromes,
-                     field_element_t *errorvals, const field_element_t *errorroots, unsigned int numerrors) {
+// forney algorithm
+void reed_solomon_find_error_values(correct_reed_solomon *rs) {
+    // error value e(j) = -(X(j)^(1-c) * omega(X(j)^-1))/(lambda'(X(j)^-1))
+    // where X(j)^-1 is a root of the error locator, omega(X) is the error evaluator,
+    //   lambda'(X) is the first formal derivative of the error locator,
+    //   and c is the first consecutive root of the generator used in encoding
+
+    // first find omega(X), the error evaluator
+    // we generate S(x), the polynomial constructed from the roots of the syndromes
+    // this is *not* the polynomial constructed by expanding the products of roots
+    // S(x) = S(1) + S(2)*x + ... + S(2t)*x(2t - 1)
     polynomial_t syndrome_poly;
-    syndrome_poly.order = 32;
-    syndrome_poly.coeff = syndromes;
+    syndrome_poly.order = rs->min_distance - 1;
+    syndrome_poly.coeff = rs->syndromes;
+    reed_solomon_find_error_evaluator(rs->field, rs->error_locator, syndrome_poly, rs->error_evaluator);
 
-    unsigned int deriv_order = locator.order - 1;
-    polynomial_t errorderiv;
-    errorderiv.coeff = malloc(sizeof(field_element_t) * (deriv_order + 1));
-    errorderiv.order = deriv_order;
-    polynomial_formal_derivative(field, locator, errorderiv);
+    // now find lambda'(X)
+    polynomial_formal_derivative(rs->field, rs->error_locator, rs->error_locator_derivative);
 
-    polynomial_t errorevaluator;
-    errorevaluator.coeff = malloc(sizeof(field_element_t) * (31 + 1));
-    errorevaluator.order = 31;
-    finderrorevaluator(field, locator, syndrome_poly, errorevaluator);
 
-    for (unsigned int i = 0; i < numerrors; i++) {
-        errorvals[i] = field_mul(field, errorroots[i], field_div(field,
-                polynomial_eval(field, errorevaluator, errorroots[i]),
-                polynomial_eval(field, errorderiv, errorroots[i])));
+    // calculate each e(j)
+    for (unsigned int i = 0; i < rs->error_locator.order; i++) {
+        // TODO calculate X(j)^(1-c) (presently we assume c = 2 so that X(j)^(1-c) = X(j)^-1)
+        rs->error_vals[i] = field_mul(rs->field, rs->error_roots[i], field_div(rs->field,
+                polynomial_eval(rs->field, rs->error_evaluator, rs->error_roots[i]),
+                polynomial_eval(rs->field, rs->error_locator_derivative, rs->error_roots[i])));
+    }
+}
+
+void reed_solomon_find_error_locations(field_t field, field_element_t *error_roots, field_logarithm_t *error_locations, unsigned int num_errors) {
+    for (unsigned int i = 0; i < num_errors; i++) {
+        // the error roots are the reciprocals of the error locations, so div 1 by them
+
+        // we do mod 255 here because the log table aliases at index 1
+        // the log of 1 is both 0 and 255 (alpha^255 = alpha^0 = 1)
+        // for most uses it makes sense to have log(1) = 255, but in this case
+        // we're interested in a byte index, and the 255th index is not even valid
+        // just wrap it back to 0
+
+        error_locations[i] = field.log[field_div(field, 1, error_roots[i])] % 255;
+    }
+}
+
+ssize_t correct_reed_solomon_decode(correct_reed_solomon *rs, const uint8_t *encoded, size_t encoded_length, uint8_t *msg) {
+    if (encoded_length != rs->block_length) {
+        return -1;
     }
 
-    free(errorderiv.coeff);
-    free(errorevaluator.coeff);
+    if (!rs->syndromes) {
+        // initialize rs for decoding
+        rs->syndromes = calloc(rs->min_distance, sizeof(field_element_t));
+        rs->received_polynomial = polynomial_create(rs->block_length - 1);
+        rs->error_locator = polynomial_create(rs->min_distance);
+        rs->error_roots = calloc(rs->min_distance, sizeof(field_element_t));
+        rs->error_vals = malloc(rs->min_distance * sizeof(field_element_t));
+        rs->error_locations = malloc(rs->min_distance * sizeof(field_logarithm_t));
+
+        rs->last_error_locator = polynomial_create(rs->min_distance);
+        rs->error_evaluator = polynomial_create(rs->min_distance - 1);
+        rs->error_locator_derivative = polynomial_create(rs->min_distance - 1);
+    }
+
+    // copy in and flip order
+    for (unsigned int i = 0; i < rs->block_length; i++) {
+        rs->received_polynomial.coeff[i] = encoded[rs->received_polynomial.order - i];
+    }
+
+    reed_solomon_find_syndromes(rs->field, rs->received_polynomial, rs->generator_roots, rs->syndromes, rs->min_distance);
+
+    unsigned int numerrors = reed_solomon_find_error_locator(rs);
+    // XXX fix this vvvv
+    rs->error_locator.order = numerrors;
+
+    if (!reed_solomon_factorize_error_locator(rs->field, rs->error_locator, rs->error_roots)) {
+        return -1;
+    }
+
+    reed_solomon_find_error_values(rs);
+
+    reed_solomon_find_error_locations(rs->field, rs->error_roots, rs->error_locations, rs->error_locator.order);
+
+    for (unsigned int i = 0; i < rs->error_locator.order; i++) {
+        rs->received_polynomial.coeff[rs->error_locations[i]] = field_sub(rs->field, rs->received_polynomial.coeff[rs->error_locations[i]], rs->error_vals[i]);
+    }
+
+    // TODO recalculate syndromes, check for zero (only if numerrors = min_distance?)
+
+    for (unsigned int i = 0; i < rs->message_length; i++) {
+        msg[i] = rs->received_polynomial.coeff[(rs->block_length - i) - 1];
+    }
+
+    return rs->message_length;
 }
+
+void correct_reed_solomon_destroy(correct_reed_solomon *rs) {
+    field_destroy(rs->field);
+    polynomial_destroy(rs->generator);
+    free(rs->generator_roots);
+    polynomial_destroy(rs->encoded_polynomial);
+    polynomial_destroy(rs->encoded_remainder);
+    if (rs->syndromes) {
+        free(rs->syndromes);
+        polynomial_destroy(rs->received_polynomial);
+        polynomial_destroy(rs->error_locator);
+        free(rs->error_roots);
+        free(rs->error_vals);
+        free(rs->error_locations);
+        polynomial_destroy(rs->last_error_locator);
+        polynomial_destroy(rs->error_evaluator);
+        polynomial_destroy(rs->error_locator_derivative);
+    }
+    free(rs);
+}
+
 
 int main() {
 
@@ -482,89 +674,79 @@ int main() {
 
     printf("\n");
 
-    polynomial_t generator;
-    generator.coeff = malloc(sizeof(field_element_t) * 33);
-    field_element_t *genroots = malloc(sizeof(field_element_t) * 32);
-
-    buildgenerator(field, 32, generator, genroots);
+    correct_reed_solomon *rs = correct_reed_solomon_create(primitive_polynomial_ccsds);
 
     printf("roots: ");
-    for (unsigned int i = 0; i < 32; i++) {
-        printf("%d", genroots[i]);
-        if (i < 32) {
+    for (unsigned int i = 0; i < rs->min_distance; i++) {
+        printf("%d", rs->generator_roots[i]);
+        if (i < rs->min_distance - 1) {
             printf(", ");
         }
     }
     printf("\n\n");
 
     printf("generator: ");
-    for (unsigned int i = 0; i < generator.order + 1; i++) {
-        printf("%d*x^%d", generator.coeff[i], i);
-        if (i < generator.order) {
+    for (unsigned int i = 0; i < rs->generator.order + 1; i++) {
+        printf("%d*x^%d", rs->generator.coeff[i], i);
+        if (i < rs->generator.order) {
             printf(" + ");
         }
     }
     printf("\n\n");
 
     printf("generator (alpha format): ");
-    for (unsigned int i = generator.order + 1; i > 0; i--) {
-        printf("alpha^%d*x^%d", field.log[generator.coeff[i - 1]], i - 1);
+    for (unsigned int i = rs->generator.order + 1; i > 0; i--) {
+        printf("alpha^%d*x^%d", rs->field.log[rs->generator.coeff[i - 1]], i - 1);
         if (i > 1) {
             printf(" + ");
         }
     }
     printf("\n\n");
 
-    unsigned char *msg = calloc(223, sizeof(unsigned char));
-    for (unsigned char i = 0; i < 223; i++) {
+    unsigned char *msg = calloc(rs->message_length, sizeof(unsigned char));
+    for (unsigned char i = 0; i < rs->message_length; i++) {
         msg[i] = i;
     }
 
-    polynomial_t msgpoly;
-    msgpoly.coeff = calloc(255, sizeof(field_element_t));
-    msgpoly.order = 254;
-    for (unsigned int i = 0; i < 223; i++) {
-        msgpoly.coeff[msgpoly.order - i] = msg[i];
-    }
-    polynomial_t rem;
-    rem.coeff = calloc(255, sizeof(field_element_t));
-    rem.order = generator.order;
-    polynomial_mod(field, msgpoly, generator, rem);
+    uint8_t *encoded = malloc(rs->block_length * sizeof(uint8_t));
+    correct_reed_solomon_encode(rs, msg, rs->message_length, encoded);
 
     printf("remainder: ");
     bool has_printed = false;
-    for (unsigned int i = 0; i < rem.order + 1; i++) {
-        if (!rem.coeff[i]) {
+    for (unsigned int i = 0; i < rs->encoded_remainder.order + 1; i++) {
+        if (!rs->encoded_remainder.coeff[i]) {
             continue;
         }
         if (has_printed) {
             printf(" + ");
         }
         has_printed = true;
-        printf("%d*x^%d", rem.coeff[i], i);
+        printf("%d*x^%d", rs->encoded_remainder.coeff[i], i);
     }
     printf("\n\n");
 
-    for (unsigned int i = 0; i < 32; i++) {
-        msgpoly.coeff[i] = rem.coeff[i];
+    polynomial_t msgpoly;
+    msgpoly.coeff = malloc(rs->block_length * sizeof(field_element_t));
+    msgpoly.order = rs->block_length - 1;
+
+    for (unsigned int i = 0; i < rs->block_length; i++) {
+        msgpoly.coeff[i] = encoded[rs->block_length - i - 1];
     }
 
-    field_element_t *syndromes = calloc(32, sizeof(field_element_t));
-    for (unsigned int i = 0; i < 32; i++) {
-        syndromes[i] = polynomial_eval(field, msgpoly, genroots[i]);
-    }
+    field_element_t *syndromes = calloc(rs->min_distance, sizeof(field_element_t));
+    reed_solomon_find_syndromes(field, msgpoly, rs->generator_roots, syndromes, rs->min_distance);
 
     printf("syndromes: ");
-    for (unsigned int i = 0; i < 32; i++) {
+    for (unsigned int i = 0; i < rs->min_distance; i++) {
         printf("%d", syndromes[i]);
-        if (i < 31) {
+        if (i < rs->min_distance - 1) {
             printf(", ");
         }
     }
     printf("\n\n");
 
     srand(time(NULL));
-    float p = 0.04;
+    float p = 0.06;
     unsigned int corrupted = 0;
     printf("corrupted bytes at: ");
     has_printed = false;
@@ -582,73 +764,55 @@ int main() {
     }
     printf(" (%d bytes)\n\n", corrupted);
 
-    for (unsigned int i = 0; i < 32; i++) {
-        syndromes[i] = polynomial_eval(field, msgpoly, genroots[i]);
-    }
+    reed_solomon_find_syndromes(field, msgpoly, rs->generator_roots, syndromes, rs->min_distance);
 
     printf("syndromes (corrupted): ");
-    for (unsigned int i = 0; i < 32; i++) {
+    for (unsigned int i = 0; i < rs->min_distance; i++) {
         printf("%d", syndromes[i]);
-        if (i < 31) {
+        if (i < rs->min_distance - 1) {
             printf(", ");
         }
     }
     printf("\n\n");
 
-    polynomial_t errorlocator;
-    errorlocator.coeff = calloc(32, sizeof(field_element_t));
-    unsigned int numerrors = finderrorlocator(field, syndromes, 32, errorlocator);
-    // XXX fix this vvvv
-    errorlocator.order = numerrors;
+    for (unsigned int i = 0; i < rs->block_length; i++) {
+        encoded[i] = msgpoly.coeff[rs->block_length - i - 1];
+    }
 
-    printf("numerrors: %d\n\n", numerrors);
+    unsigned char *recvmsg = malloc(sizeof(unsigned char) * rs->message_length);
+
+    if (correct_reed_solomon_decode(rs, encoded, rs->block_length, recvmsg) == -1) {
+        printf("decoding failed\n");
+        return 0;
+    }
+
+    printf("numerrors: %d\n\n", rs->error_locator.order);
 
     printf("error locator: ");
     has_printed = false;
-    for (unsigned int i = 0; i < errorlocator.order + 1; i++) {
-        if (!errorlocator.coeff[i]) {
+    for (unsigned int i = 0; i < rs->error_locator.order + 1; i++) {
+        if (!rs->error_locator.coeff[i]) {
             continue;
         }
         if (has_printed) {
             printf(" + ");
         }
         has_printed = true;
-        printf("%d*x^%d", errorlocator.coeff[i], i);
+        printf("%d*x^%d", rs->error_locator.coeff[i], i);
     }
     printf("\n\n");
 
-    field_element_t *errorroots = calloc(numerrors, sizeof(field_element_t));
-    factorizeerrorlocator(field, errorlocator, errorroots);
-
-    field_element_t *errorvals = malloc(sizeof(field_element_t) * numerrors);
-    finderrorvalues(field, errorlocator, syndromes, errorvals, errorroots, numerrors);
-
-    for (unsigned int i = 0; i < numerrors; i++) {
-        errorroots[i] = field.log[field_div(field, 1, errorroots[i])];
-    }
-
     printf("error locator: ");
-    for (unsigned int i = 0; i < numerrors; i++) {
-        printf("%d@%d", errorvals[i], errorroots[i]);
-        if (i < numerrors - 1) {
+    for (unsigned int i = 0; i < rs->error_locator.order; i++) {
+        printf("%d@%d", rs->error_vals[i], rs->error_locations[i]);
+        if (i < rs->error_locator.order - 1) {
             printf(", ");
         }
     }
     printf("\n\n");
 
-    field_element_t *decpoly = malloc(sizeof(field_element_t) * 255);
-    memcpy(decpoly, msgpoly.coeff, 255 * sizeof(field_element_t));
-    for (unsigned int i = 0; i < numerrors; i++) {
-        decpoly[errorroots[i]] ^= errorvals[i];
-    }
-
-    unsigned char *recvmsg = malloc(sizeof(unsigned char) * 223);
-    for (unsigned int i = 0; i < 223; i++) {
-        recvmsg[i] = decpoly[(255 - i) - 1];
-    }
-
     printf("decoded matches original: ");
-    bool match = (strncmp((char *)msg, (char *)recvmsg, 223) == 0);
+    bool match = (memcmp(msg, recvmsg, rs->message_length) == 0);
     if (match) {
         printf("true");
     } else {
@@ -657,17 +821,12 @@ int main() {
     printf("\n");
 
 
+    free(encoded);
+    correct_reed_solomon_destroy(rs);
     free(recvmsg);
-    free(decpoly);
-    free(errorvals);
-    free(errorroots);
-    free(errorlocator.coeff);
     free(syndromes);
-    free(rem.coeff);
     free(msgpoly.coeff);
     free(msg);
-    free(generator.coeff);
-    free(genroots);
     field_destroy(field);
     return 0;
 }
