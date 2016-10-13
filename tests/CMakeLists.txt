@@ -1,0 +1,25 @@
+include_directories("include")
+
+add_executable(convolutional_test_runner EXCLUDE_FROM_ALL convolutional.c $<TARGET_OBJECTS:libcorrect_util>)
+target_link_libraries(convolutional_test_runner correct_static)
+set_target_properties(convolutional_test_runner PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
+add_test(NAME convolutional_test WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/tests" COMMAND convolutional_test_runner)
+
+add_executable(reed_solomon_test_runner EXCLUDE_FROM_ALL reed-solomon.c rs_tester.c)
+target_link_libraries(reed_solomon_test_runner correct_static)
+set_target_properties(reed_solomon_test_runner PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
+add_test(NAME reed_solomon_test WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/tests" COMMAND reed_solomon_test_runner)
+
+add_executable(reed_solomon_interop_test_runner EXCLUDE_FROM_ALL reed-solomon-fec-interop.c rs_tester.c rs_tester_fec.c)
+target_link_libraries(reed_solomon_interop_test_runner correct_static fec)
+set_target_properties(reed_solomon_interop_test_runner PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
+add_test(NAME reed_solomon_interop_test WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/tests" COMMAND reed_solomon_interop_test_runner)
+
+add_executable(reed_solomon_shim_interop_test_runner EXCLUDE_FROM_ALL reed-solomon-shim-interop.c rs_tester.c rs_tester_fec_shim.c)
+target_link_libraries(reed_solomon_shim_interop_test_runner correct_static fec_shim_static)
+set_target_properties(reed_solomon_shim_interop_test_runner PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
+add_test(NAME reed_solomon_shim_interop_test WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/tests" COMMAND reed_solomon_shim_interop_test_runner)
+
+add_custom_target(test_runners DEPENDS convolutional_test_runner reed_solomon_test_runner reed_solomon_interop_test_runner reed_solomon_shim_interop_test_runner)
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS test_runners)
+enable_testing()
