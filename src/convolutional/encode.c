@@ -26,7 +26,7 @@ size_t correct_convolutional_encode(correct_convolutional *conv,
     unsigned int shiftmask = (1 << conv->order) - 1;
 
     size_t encoded_len_bits = correct_convolutional_encode_len(conv, msg_len);
-    size_t encoded_len = (encoded_len % 8) ? (encoded_len / 8 + 1) : (encoded_len / 8);
+    size_t encoded_len = (encoded_len_bits % 8) ? (encoded_len_bits / 8 + 1) : (encoded_len_bits / 8);
     bit_writer_reconfigure(conv->bit_writer, encoded, encoded_len);
 
     bit_reader_reconfigure(conv->bit_reader, msg, msg_len);
