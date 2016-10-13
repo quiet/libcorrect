@@ -22,6 +22,8 @@ Build
 -----------
 libcorrect uses CMake, which allows for out-of-source builds. To get started, make sure that you have CMake installed, and then, from libcorrect's source directory, run `mkdir build && cd build && cmake .. && make && make install`. Additionally, if you would like the libfec compatibility layer, you can run `make shim && make install`, though do be cautioned that this can overwrite an existing installation of libfec.
 
+If you are on a host which has <x86intrin.h> available, then libcorrect will automatically build its SSE version as well. The SSE headers are provided under <correct-sse.h>. For now, it is on the caller of this code to ensure that SSE is available and can be used. libcorrect requires SSE functions up to and including SSE4.
+
 If you have any questions or problems with libcorrect, do not hesitate to open an issue.
 
 -----------
