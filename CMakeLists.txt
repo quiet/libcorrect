@@ -46,7 +46,7 @@ set_target_properties(correct_static PROPERTIES OUTPUT_NAME "correct")
 add_subdirectory(util)
 add_subdirectory(tests)
 add_subdirectory(tools)
-add_subdirectory(benchmarks)
+# add_subdirectory(benchmarks)
 
 install(TARGETS correct correct_static
         DESTINATION lib)
