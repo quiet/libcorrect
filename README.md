@@ -12,7 +12,7 @@ Design goals
 
 1. libcorrect should be a drop-in, BSD-licensed substitute for [libfec](http://www.ka9q.net/code/fec/), which offers similar functionality under the LGPL-license. Although libfec is a fantastic library, the state of LGPL-licensed libraries on mobile devices is somewhat uncertain. For this reason, libcorrect is a completely new approach under the BSD license which supports the same algorithms as libfec. Additionally, libcorrect can be built with a compatibility layer so that libcorrect can be linked in place of libfec.
 
-Achieving this goal gives [libquiet](https://github.com/quiet/quiet) a fully BSD-/MIT-licensed set of dependencies, which gives libquiet more flexibility in mobile applications.
+    Achieving this goal gives [libquiet](https://github.com/quiet/quiet) a fully BSD-/MIT-licensed set of dependencies, which gives libquiet more flexibility in mobile applications.
 
 2. libcorrect should make it easier to investigate how forward error correction works. To accomplish this, libcorrect provides tools to test the fitness of convolutional codes and their polynomials. Additionally, libcorrect should be written in a way that leads to easy understanding of these powerful algorithms. This library's roadmap includes more documentation on how these algorithms work and how to increase their computational performance.
 
