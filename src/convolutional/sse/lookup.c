@@ -77,7 +77,7 @@ oct_lookup_t oct_lookup_create(unsigned int rate,
     oct_lookup_t octs;
 
     octs.keys = malloc((1 << (order - 3)) * sizeof(distance_oct_key_t));
-    posix_memalign((void**)&octs.outputs, 32, ((output_oct_t)2 << rate) * sizeof(uint64_t));
+    octs.outputs = malloc(((output_oct_t)2 << rate) * sizeof(uint64_t));
     output_oct_t *short_outs = calloc(((output_oct_t)2 << rate), sizeof(output_oct_t));
     size_t outputs_len = 2 << rate;
     unsigned int output_counter = 1;
@@ -142,7 +142,7 @@ oct_lookup_t oct_lookup_create(unsigned int rate,
     octs.outputs_len = output_counter;
     octs.output_mask = (1 << (rate)) - 1;
     octs.output_width = rate;
-    posix_memalign((void**)&octs.distances, 32, octs.outputs_len * 2 * sizeof(uint64_t));
+    octs.distances = malloc(octs.outputs_len * 2 * sizeof(uint64_t));
     return octs;
 }
 
