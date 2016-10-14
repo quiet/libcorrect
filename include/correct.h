@@ -168,7 +168,7 @@ static const uint16_t correct_rs_primitive_polynomial_8_7_6_5_4_2_0 =
     0x1f5;  // x^8 + x^7 + x^6 + x^5 + x^4 + x^2 + 1
 
 static const uint16_t correct_rs_primitive_polynomial_ccsds =
-    correct_rs_primitive_polynomial_8_7_2_1_0;
+    0x187;  // x^8 + x^7 + x^2 + x + 1
 
 /* correct_reed_solomon_create allocates and initializes an
  * encoder/decoder for a given reed solomon error correction
