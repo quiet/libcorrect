@@ -66,8 +66,11 @@ void decode_rs_char(void *rs, unsigned char *block, int *erasure_locations,
 typedef struct {
     correct_convolutional *conv;
     unsigned int rate;
+    unsigned int order;
     uint8_t *buf;
-    uint8_t *iter;
+    size_t buf_len;
+    uint8_t *read_iter;
+    uint8_t *write_iter;
 } convolutional_shim;
 
 static correct_convolutional_polynomial_t r12k7[] = {V27POLYA, V27POLYB};
@@ -91,9 +94,12 @@ static void *create_viterbi(unsigned int num_decoded_bits, unsigned int rate,
                                    : num_decoded_bits / 8;
 
     shim->rate = rate;
+    shim->order = order;
     shim->buf = malloc(num_decoded_bytes);
+    shim->buf_len = num_decoded_bytes;
     shim->conv = correct_convolutional_create(rate, order, poly);
-    shim->iter = shim->buf;
+    shim->read_iter = shim->buf;
+    shim->write_iter = shim->buf;
 
     return shim;
 }
@@ -107,27 +113,53 @@ static void delete_viterbi(void *vit) {
 
 static void init_viterbi(void *vit) {
     convolutional_shim *shim = (convolutional_shim *)vit;
-    shim->iter = shim->buf;
+    shim->read_iter = shim->buf;
+    shim->write_iter = shim->buf;
 }
 
 static void update_viterbi_blk(void *vit, const unsigned char *encoded_soft,
                                unsigned int num_encoded_groups) {
     convolutional_shim *shim = (convolutional_shim *)vit;
+
+    // don't overwrite our buffer
+    size_t rem = (shim->buf + shim->buf_len) - shim->write_iter;
+    size_t rem_bits = 8 * rem;
+    // this math isn't very clear
+    // here we sort of do the opposite of what liquid-dsp does
+    size_t n_write_bits = num_encoded_groups - (shim->order - 1);
+    if (n_write_bits > rem_bits) {
+        size_t reduction = n_write_bits - rem_bits;
+        num_encoded_groups -= reduction;
+        n_write_bits -= reduction;
+    }
+
+    // what if n_write_bits isn't a multiple of 8?
+    // libcorrect can't start and stop at arbitrary indices...
     correct_convolutional_decode_soft(
-        shim->conv, encoded_soft, num_encoded_groups * shim->rate, shim->buf);
+        shim->conv, encoded_soft, num_encoded_groups * shim->rate, shim->write_iter);
+    shim->write_iter += n_write_bits / 8;
 }
 
 static void chainback_viterbi(void *vit, unsigned char *decoded,
                               unsigned int num_decoded_bits) {
-    // XXX num_decoded_bits not a multiple of 8
+    convolutional_shim *shim = (convolutional_shim *)vit;
+
+    // num_decoded_bits not a multiple of 8?
+    // this is a similar problem to update_viterbi_blk
+    // although here we could actually resolve a non-multiple of 8
+    size_t rem = shim->write_iter - shim->read_iter;
+    size_t rem_bits = 8 * rem;
+
+    if (num_decoded_bits > rem_bits) {
+        num_decoded_bits = rem_bits;
+    }
 
     size_t num_decoded_bytes = (num_decoded_bits % 8)
                                    ? (num_decoded_bits / 8 + 1)
                                    : num_decoded_bits / 8;
-    convolutional_shim *shim = (convolutional_shim *)vit;
-    memcpy(decoded, shim->iter, num_decoded_bytes);
+    memcpy(decoded, shim->read_iter, num_decoded_bytes);
 
-    shim->iter += num_decoded_bytes;
+    shim->read_iter += num_decoded_bytes;
 }
 
 /* Rate 1/2, k = 7 */
