@@ -1,3 +1,5 @@
+#ifndef CORRECT_FEC_H
+#define CORRECT_FEC_H
 // libcorrect's libfec shim header
 // this is a partial implementation of libfec
 // header signatures derived from found usages of libfec -- some things may be different
@@ -61,3 +63,5 @@ void delete_viterbi615(void *vit);
 
 // Misc other
 static inline int parity(unsigned int x) { return __builtin_parity(x); }
+
+#endif

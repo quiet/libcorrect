@@ -17,6 +17,8 @@ else()
   endif()
 endif()
 
+find_library(FEC fec)
+CHECK_LIBRARY_EXISTS(FEC dotprod "" HAVE_LIBFEC)
 CHECK_INCLUDE_FILES(x86intrin.h HAVE_SSE)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -32,7 +34,7 @@ set(INSTALL_HEADERS "${CMAKE_BINARY_DIR}/include/correct.h")
 
 add_custom_target(correct-h ALL COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/include/correct.h ${CMAKE_BINARY_DIR}/include/correct.h)
 
-if (HAVE_SSE)
+if(HAVE_SSE)
   add_library(correct SHARED $<TARGET_OBJECTS:correct-reed-solomon> $<TARGET_OBJECTS:correct-convolutional> $<TARGET_OBJECTS:correct-convolutional-sse>)
   add_library(correct_static $<TARGET_OBJECTS:correct-reed-solomon> $<TARGET_OBJECTS:correct-convolutional> $<TARGET_OBJECTS:correct-convolutional-sse>)
   set(INSTALL_HEADERS ${INSTALL_HEADERS} ${CMAKE_BINARY_DIR}/include/correct-sse.h)
