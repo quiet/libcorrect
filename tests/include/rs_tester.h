@@ -10,7 +10,7 @@ void rs_correct_encode(void *encoder, uint8_t *msg, size_t msg_length,
                        uint8_t *msg_out);
 void rs_correct_decode(void *decoder, uint8_t *encoded, size_t encoded_length,
                        uint8_t *erasure_locations, size_t erasure_length,
-                       uint8_t *msg, size_t pad_length);
+                       uint8_t *msg, size_t pad_length, size_t num_roots);
 
 typedef struct {
     size_t block_length;
@@ -27,7 +27,7 @@ typedef struct {
 typedef struct {
     void (*encode)(void *, uint8_t *, size_t, uint8_t *);
     void *encoder;
-    void (*decode)(void *, uint8_t *, size_t, uint8_t *, size_t, uint8_t *, size_t);
+    void (*decode)(void *, uint8_t *, size_t, uint8_t *, size_t, uint8_t *, size_t, size_t);
     void *decoder;
 } rs_test;
 

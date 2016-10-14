@@ -172,9 +172,13 @@ static const uint16_t correct_rs_primitive_polynomial_ccsds =
 
 /* correct_reed_solomon_create allocates and initializes an
  * encoder/decoder for a given reed solomon error correction
- * code. Presently this function only supports 8-bit symbols
- * and RS codes of (255, 223), that is, a block of 255 bytse
- * with 223 payload bytes and 32 parity bytes.
+ * code. The block size must be 255 bytes with 8-bit symbols.
+ *
+ * This block can repair corrupted bytes. It can handle as
+ * many as num_roots/2 bytes having corruption and still recover
+ * the encoded payload. However, using more num_roots
+ * adds more parity overhead and substantially increases
+ * the computational time for decoding.
  *
  * primitive_polynomial should be one of the given values in this
  * file. Sane values for first_consecutive_root and
@@ -183,7 +187,8 @@ static const uint16_t correct_rs_primitive_polynomial_ccsds =
  */
 correct_reed_solomon *correct_reed_solomon_create(uint16_t primitive_polynomial,
                                                   uint8_t first_consecutive_root,
-                                                  uint8_t generator_root_gap);
+                                                  uint8_t generator_root_gap,
+                                                  size_t num_roots);
 
 /* correct_reed_solomon_encode uses the rs instance to encode
  * parity information onto a block of data. msg_length should be
@@ -227,6 +232,10 @@ ssize_t correct_reed_solomon_decode(correct_reed_solomon *rs, const uint8_t *enc
  * This erasure information is typically provided by a demodulating
  * or receiving device. This function can recover with
  * some additional errors on top of the erasures.
+ *
+ * In order to successfully decode, the quantity
+ * (num_erasures + 2*num_errors) must be less than
+ * num_roots.
  *
  * erasure_locations shold contain erasure_length items.
  * erasure_length should not exceed the number of parity

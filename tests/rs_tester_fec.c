@@ -9,7 +9,7 @@ void rs_fec_encode(void *encoder, uint8_t *msg, size_t msg_length,
 
 void rs_fec_decode(void *decoder, uint8_t *encoded, size_t encoded_length,
                    uint8_t *erasure_locations, size_t erasure_length,
-                   uint8_t *msg, size_t pad_length) {
+                   uint8_t *msg, size_t pad_length, size_t num_roots) {
     // XXX make sure that pad length used to build decoder corresponds to this
     // encoded_length
     if (erasure_length) {
@@ -26,5 +26,5 @@ void rs_fec_decode(void *decoder, uint8_t *encoded, size_t encoded_length,
     } else {
         decode_rs_char(decoder, encoded, NULL, 0);
     }
-    memcpy(msg, encoded, encoded_length - 32);
+    memcpy(msg, encoded, encoded_length - num_roots);
 }

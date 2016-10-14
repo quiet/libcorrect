@@ -20,10 +20,6 @@ void *init_rs_char(int symbol_size, int primitive_polynomial,
         return NULL;
     }
 
-    if (number_roots != 32) {
-        return NULL;
-    }
-
     reed_solomon_shim *shim = malloc(sizeof(reed_solomon_shim));
 
     shim->pad = pad;
@@ -31,7 +27,7 @@ void *init_rs_char(int symbol_size, int primitive_polynomial,
     shim->num_roots = number_roots;
     shim->msg_length = shim->block_length - number_roots;
     shim->rs = correct_reed_solomon_create(primitive_polynomial,
-                                           first_consecutive_root, root_gap);
+                                           first_consecutive_root, root_gap, number_roots);
     shim->msg_out = malloc(shim->block_length);
     shim->erasures = malloc(number_roots);
 

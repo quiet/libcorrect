@@ -17,7 +17,7 @@ void rs_correct_encode(void *encoder, uint8_t *msg, size_t msg_length,
 
 void rs_correct_decode(void *decoder, uint8_t *encoded, size_t encoded_length,
                        uint8_t *erasure_locations, size_t erasure_length,
-                       uint8_t *msg, size_t pad_length) {
+                       uint8_t *msg, size_t pad_length, size_t num_roots) {
     correct_reed_solomon_decode_with_erasures(
         (correct_reed_solomon *)decoder, encoded, encoded_length,
         erasure_locations, erasure_length, msg);
@@ -111,7 +111,7 @@ rs_test_run test_rs_errors(rs_test *test, rs_testbench *testbench, size_t msg_le
     gettimeofday(&start, NULL);
     test->decode(test->decoder, testbench->corrupted_encoded, block_length,
                  testbench->erasure_locations, num_erasures,
-                 testbench->recvmsg, pad_length);
+                 testbench->recvmsg, pad_length, testbench->min_distance);
     gettimeofday(&end, NULL);
 
     run.decoder_elapsed.tv_sec = end.tv_sec - start.tv_sec;

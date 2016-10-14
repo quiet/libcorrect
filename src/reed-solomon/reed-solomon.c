@@ -11,13 +11,13 @@ static polynomial_t reed_solomon_build_generator(field_t field, unsigned int nro
     return polynomial_create_from_roots(field, nroots, roots);
 }
 
-correct_reed_solomon *correct_reed_solomon_create(field_operation_t primitive_polynomial, field_logarithm_t first_consecutive_root, field_logarithm_t generator_root_gap) {
+correct_reed_solomon *correct_reed_solomon_create(field_operation_t primitive_polynomial, field_logarithm_t first_consecutive_root, field_logarithm_t generator_root_gap, size_t num_roots) {
     correct_reed_solomon *rs = calloc(1, sizeof(correct_reed_solomon));
     rs->field = field_create(primitive_polynomial);
 
     rs->block_length = 255;
-    rs->message_length = 223;
-    rs->min_distance = rs->block_length - rs->message_length;
+    rs->min_distance = num_roots;
+    rs->message_length = rs->block_length - rs->min_distance;
 
     rs->first_consecutive_root = first_consecutive_root;
     rs->generator_root_gap = generator_root_gap;

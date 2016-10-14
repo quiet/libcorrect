@@ -48,8 +48,80 @@ int main() {
     size_t message_length = block_length - min_distance;
 
     correct_reed_solomon *rs = correct_reed_solomon_create(
-        correct_rs_primitive_polynomial_ccsds, 1, 1);
+        correct_rs_primitive_polynomial_ccsds, 1, 1, min_distance);
     rs_testbench *testbench = rs_testbench_create(block_length, min_distance);
+
+    run_tests(rs, testbench, block_length, message_length / 2, 0, 0, 20000);
+    run_tests(rs, testbench, block_length, message_length, 0, 0, 20000);
+    run_tests(rs, testbench, block_length, message_length / 2, min_distance / 2,
+              0, 20000);
+    run_tests(rs, testbench, block_length, message_length, min_distance / 2, 0,
+              20000);
+    run_tests(rs, testbench, block_length, message_length / 2, 0, min_distance,
+              20000);
+    run_tests(rs, testbench, block_length, message_length, 0, min_distance,
+              20000);
+    run_tests(rs, testbench, block_length, message_length / 2, min_distance / 4,
+              min_distance / 2, 20000);
+    run_tests(rs, testbench, block_length, message_length, min_distance / 4,
+              min_distance / 2, 20000);
+
+    rs_testbench_destroy(testbench);
+    correct_reed_solomon_destroy(rs);
+
+    min_distance = 16;
+    message_length = block_length - min_distance;
+    rs = correct_reed_solomon_create(
+        correct_rs_primitive_polynomial_ccsds, 1, 1, min_distance);
+    testbench = rs_testbench_create(block_length, min_distance);
+
+    run_tests(rs, testbench, block_length, message_length / 2, 0, 0, 20000);
+    run_tests(rs, testbench, block_length, message_length, 0, 0, 20000);
+    run_tests(rs, testbench, block_length, message_length / 2, min_distance / 2,
+              0, 20000);
+    run_tests(rs, testbench, block_length, message_length, min_distance / 2, 0,
+              20000);
+    run_tests(rs, testbench, block_length, message_length / 2, 0, min_distance,
+              20000);
+    run_tests(rs, testbench, block_length, message_length, 0, min_distance,
+              20000);
+    run_tests(rs, testbench, block_length, message_length / 2, min_distance / 4,
+              min_distance / 2, 20000);
+    run_tests(rs, testbench, block_length, message_length, min_distance / 4,
+              min_distance / 2, 20000);
+
+    rs_testbench_destroy(testbench);
+    correct_reed_solomon_destroy(rs);
+
+    min_distance = 8;
+    message_length = block_length - min_distance;
+    rs = correct_reed_solomon_create(
+        correct_rs_primitive_polynomial_ccsds, 1, 1, min_distance);
+    testbench = rs_testbench_create(block_length, min_distance);
+
+    run_tests(rs, testbench, block_length, message_length / 2, 0, 0, 20000);
+    run_tests(rs, testbench, block_length, message_length, 0, 0, 20000);
+    run_tests(rs, testbench, block_length, message_length / 2, min_distance / 2,
+              0, 20000);
+    run_tests(rs, testbench, block_length, message_length, min_distance / 2, 0,
+              20000);
+    run_tests(rs, testbench, block_length, message_length / 2, 0, min_distance,
+              20000);
+    run_tests(rs, testbench, block_length, message_length, 0, min_distance,
+              20000);
+    run_tests(rs, testbench, block_length, message_length / 2, min_distance / 4,
+              min_distance / 2, 20000);
+    run_tests(rs, testbench, block_length, message_length, min_distance / 4,
+              min_distance / 2, 20000);
+
+    rs_testbench_destroy(testbench);
+    correct_reed_solomon_destroy(rs);
+
+    min_distance = 4;
+    message_length = block_length - min_distance;
+    rs = correct_reed_solomon_create(
+        correct_rs_primitive_polynomial_ccsds, 1, 1, min_distance);
+    testbench = rs_testbench_create(block_length, min_distance);
 
     run_tests(rs, testbench, block_length, message_length / 2, 0, 0, 20000);
     run_tests(rs, testbench, block_length, message_length, 0, 0, 20000);
