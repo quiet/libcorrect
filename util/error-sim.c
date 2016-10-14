@@ -124,14 +124,14 @@ void add_white_noise(double *signal, double *noise, size_t n_syms) {
     }
 }
 
-conv_testbench *resize_conv_testbench(conv_testbench *scratch, correct_convolutional *conv, size_t msg_len) {
+conv_testbench *resize_conv_testbench(conv_testbench *scratch, size_t (*enclen_f)(void *, size_t), void *enc, size_t msg_len) {
     if (!scratch) {
         scratch = calloc(1, sizeof(conv_testbench));
     }
 
     scratch->msg_out = realloc(scratch->msg_out, msg_len);
 
-    size_t enclen = correct_convolutional_encode_len(conv, msg_len);
+    size_t enclen = enclen_f(enc, msg_len);
     size_t enclen_bytes = (enclen % 8) ? (enclen/8 + 1) : enclen/8;
     scratch->enclen = enclen;
     scratch->enclen_bytes = enclen_bytes;
@@ -154,9 +154,9 @@ void free_scratch(conv_testbench *scratch) {
     free(scratch);
 }
 
-int test_conv_noise(correct_convolutional *conv, uint8_t *msg, size_t n_bytes,
-                    conv_testbench *scratch, double bpsk_voltage) {
-    correct_convolutional_encode(conv, msg, n_bytes, scratch->encoded);
+int test_conv_noise(conv_testbench *scratch, uint8_t *msg, size_t n_bytes,
+                    double bpsk_voltage) {
+    scratch->encode(scratch->encoder, msg, n_bytes, scratch->encoded);
     encode_bpsk(scratch->encoded, scratch->v, scratch->enclen, bpsk_voltage);
 
     memcpy(scratch->corrupted, scratch->v, scratch->enclen * sizeof(double));
@@ -165,48 +165,19 @@ int test_conv_noise(correct_convolutional *conv, uint8_t *msg, size_t n_bytes,
 
     memset(scratch->msg_out, 0, n_bytes);
 
-    correct_convolutional_decode_soft(conv, scratch->soft, scratch->enclen, scratch->msg_out);
+    scratch->decode(scratch->decoder, scratch->soft, scratch->enclen, scratch->msg_out);
 
     return distance((uint8_t*)msg, scratch->msg_out, n_bytes);
 }
 
-conv_testbench *resize_sse_conv_testbench(conv_testbench *scratch, correct_convolutional_sse *conv, size_t msg_len) {
-    if (!scratch) {
-        scratch = calloc(1, sizeof(conv_testbench));
-    }
-
-    if (scratch->msg_len == msg_len) {
-        return scratch;
-    }
-
-    scratch->msg_out = realloc(scratch->msg_out, msg_len);
-    scratch->msg_len = msg_len;
-
-    size_t enclen = correct_convolutional_sse_encode_len(conv, msg_len);
-    size_t enclen_bytes = (enclen % 8) ? (enclen/8 + 1) : enclen/8;
-    scratch->enclen = enclen;
-    scratch->enclen_bytes = enclen_bytes;
-
-    scratch->encoded = realloc(scratch->encoded, enclen_bytes);
-    scratch->v = realloc(scratch->v, enclen * sizeof(double));
-    scratch->corrupted = realloc(scratch->corrupted, enclen * sizeof(double));
-    scratch->noise = realloc(scratch->noise, enclen * sizeof(double));
-    scratch->soft = realloc(scratch->soft, enclen);
-    return scratch;
+size_t conv_correct_enclen(void *conv_v, size_t msg_len) {
+    return correct_convolutional_encode_len((correct_convolutional *)conv_v, msg_len);
 }
 
-int test_sse_conv_noise(correct_convolutional_sse *conv, uint8_t *msg, size_t n_bytes,
-                    conv_testbench *scratch, double bpsk_voltage) {
-    correct_convolutional_sse_encode(conv, msg, n_bytes, scratch->encoded);
-    encode_bpsk(scratch->encoded, scratch->v, scratch->enclen, bpsk_voltage);
+void conv_correct_encode(void *conv_v, uint8_t *msg, size_t msg_len, uint8_t *encoded) {
+    correct_convolutional_encode((correct_convolutional *)conv_v, msg, msg_len, encoded);
+}
 
-    memcpy(scratch->corrupted, scratch->v, scratch->enclen * sizeof(double));
-    add_white_noise(scratch->corrupted, scratch->noise, scratch->enclen);
-    decode_bpsk_soft(scratch->corrupted, scratch->soft, scratch->enclen, bpsk_voltage);
-
-    memset(scratch->msg_out, 0, n_bytes);
-
-    correct_convolutional_sse_decode_soft(conv, scratch->soft, scratch->enclen, scratch->msg_out);
-
-    return distance((uint8_t*)msg, scratch->msg_out, n_bytes);
+void conv_correct_decode(void *conv_v, uint8_t *soft, size_t soft_len, uint8_t *msg) {
+    correct_convolutional_decode_soft((correct_convolutional *)conv_v, soft, soft_len, msg);
 }

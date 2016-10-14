@@ -126,6 +126,87 @@ int main() {
               min_distance / 4, min_distance / 2, 20000);
     free_rs_char(fec_rs);
 
+    printf("benchmarking\n");
+    rs_test test;
+
+    pad_length = message_length / 2;
+    test.encode = rs_correct_encode;
+    test.encoder = rs;
+    test.decode = rs_correct_decode;
+    test.decoder = rs;
+    printf("benchmarking libcorrect ");
+    benchmark(test, testbench, block_length, message_length - pad_length, 0, 0,
+              200000);
+    printf("benchmarking libcorrect ");
+    benchmark(test, testbench, block_length, message_length - pad_length,
+              min_distance / 2, 0, 200000);
+    printf("benchmarking libcorrect ");
+    benchmark(test, testbench, block_length, message_length - pad_length, 0,
+              min_distance, 200000);
+    printf("benchmarking libcorrect ");
+    benchmark(test, testbench, block_length, message_length - pad_length,
+              min_distance / 4, min_distance / 2, 200000);
+
+    pad_length = 0;
+    test.encode = rs_correct_encode;
+    test.encoder = rs;
+    test.decode = rs_correct_decode;
+    test.decoder = rs;
+    printf("benchmarking libcorrect ");
+    benchmark(test, testbench, block_length, message_length - pad_length, 0, 0,
+              200000);
+    printf("benchmarking libcorrect ");
+    benchmark(test, testbench, block_length, message_length - pad_length,
+              min_distance / 2, 0, 200000);
+    printf("benchmarking libcorrect ");
+    benchmark(test, testbench, block_length, message_length - pad_length, 0,
+              min_distance, 200000);
+    printf("benchmarking libcorrect ");
+    benchmark(test, testbench, block_length, message_length - pad_length,
+              min_distance / 4, min_distance / 2, 200000);
+
+    pad_length = message_length / 2;
+    fec_rs = init_rs_char(8, correct_rs_primitive_polynomial_ccsds, 1, 1, 32,
+                          pad_length);
+    test.encode = rs_fec_encode;
+    test.encoder = fec_rs;
+    test.decode = rs_fec_decode;
+    test.decoder = fec_rs;
+    printf("benchmarking libfec ");
+    benchmark(test, testbench, block_length, message_length - pad_length, 0, 0,
+              200000);
+    printf("benchmarking libfec ");
+    benchmark(test, testbench, block_length, message_length - pad_length,
+              min_distance / 2, 0, 200000);
+    printf("benchmarking libfec ");
+    benchmark(test, testbench, block_length, message_length - pad_length, 0,
+              min_distance, 200000);
+    printf("benchmarking libfec ");
+    benchmark(test, testbench, block_length, message_length - pad_length,
+              min_distance / 4, min_distance / 2, 200000);
+    free_rs_char(fec_rs);
+
+    pad_length = 0;
+    fec_rs = init_rs_char(8, correct_rs_primitive_polynomial_ccsds, 1, 1, 32,
+                          pad_length);
+    test.encode = rs_fec_encode;
+    test.encoder = fec_rs;
+    test.decode = rs_fec_decode;
+    test.decoder = fec_rs;
+    printf("benchmarking libfec ");
+    benchmark(test, testbench, block_length, message_length - pad_length, 0, 0,
+              200000);
+    printf("benchmarking libfec ");
+    benchmark(test, testbench, block_length, message_length - pad_length,
+              min_distance / 2, 0, 200000);
+    printf("benchmarking libfec ");
+    benchmark(test, testbench, block_length, message_length - pad_length, 0,
+              min_distance, 200000);
+    printf("benchmarking libfec ");
+    benchmark(test, testbench, block_length, message_length - pad_length,
+              min_distance / 4, min_distance / 2, 200000);
+    free_rs_char(fec_rs);
+
     rs_testbench_destroy(testbench);
     correct_reed_solomon_destroy(rs);
 

@@ -1,6 +1,6 @@
 include_directories("include")
 
-add_executable(convolutional_test_runner EXCLUDE_FROM_ALL convolutional.c $<TARGET_OBJECTS:libcorrect_util>)
+add_executable(convolutional_test_runner EXCLUDE_FROM_ALL convolutional.c $<TARGET_OBJECTS:error_sim>)
 target_link_libraries(convolutional_test_runner correct_static)
 set_target_properties(convolutional_test_runner PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
 add_test(NAME convolutional_test WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/tests" COMMAND convolutional_test_runner)

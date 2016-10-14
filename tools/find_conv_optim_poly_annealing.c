@@ -10,11 +10,26 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include "correct-sse.h"
+#if HAVE_SSE
+#include "correct/util/error-sim-sse.h"
+typedef correct_convolutional_sse conv_t;
+static conv_t*(*conv_create)(size_t, size_t, const uint16_t *) = correct_convolutional_sse_create;
+static void(*conv_destroy)(conv_t *) = correct_convolutional_sse_destroy;
+static size_t(*conv_enclen)(void *, size_t) = conv_correct_sse_enclen;
+static void(*conv_encode)(void *, uint8_t *, size_t, uint8_t *) = conv_correct_sse_encode;
+static void(*conv_decode)(void *, uint8_t *, size_t, uint8_t *) = conv_correct_sse_decode;
+#else
 #include "correct/util/error-sim.h"
+typedef correct_convolutional conv_t;
+static conv_t*(*conv_create)(size_t, size_t, const uint16_t *) = correct_convolutional_create;
+static void(*conv_destroy)(conv_t *) = correct_convolutional_destroy;
+static size_t(*conv_enclen)(void *, size_t) = conv_correct_enclen;
+static void(*conv_encode)(void *, uint8_t *, size_t, uint8_t *) = conv_correct_encode;
+static void(*conv_decode)(void *, uint8_t *, size_t, uint8_t *) = conv_correct_decode;
+#endif
 
 typedef struct {
-    correct_convolutional_sse *conv;
+    conv_t *conv;
     correct_convolutional_polynomial_t *poly;
 } conv_tester_t;
 
@@ -83,10 +98,10 @@ const size_t max_block_len = 16384;
 
 void *find_cost_thread(void *vargs) {
     thread_args *args = (thread_args *)vargs;
-    correct_convolutional_sse *conv;
+    conv_t *conv;
     uint8_t *msg = malloc(max_block_len);
 
-    conv = correct_convolutional_sse_create(args->rate, args->order, args->poly);
+    conv = conv_create(args->rate, args->order, args->poly);
     args->distance = 0;
     conv_testbench *scratch = args->scratch;
 
@@ -103,12 +118,17 @@ void *find_cost_thread(void *vargs) {
             msg[j] = rand() % 256;
         }
 
-        scratch = resize_sse_conv_testbench(scratch, conv, block_len);
+        scratch = resize_conv_testbench(scratch, conv_enclen, conv, block_len);
+        scratch->encode = conv_encode;
+        scratch->encoder = conv;
+        scratch->decode = conv_decode;
+        scratch->decoder = conv;
+
         build_white_noise(scratch->noise, scratch->enclen, args->eb_n0, args->bpsk_bit_energy);
 
-        args->distance += test_sse_conv_noise(conv, msg, block_len, scratch, args->bpsk_voltage);
+        args->distance += test_conv_noise(scratch, msg, block_len, args->bpsk_voltage);
     }
-    correct_convolutional_sse_destroy(conv);
+    conv_destroy(conv);
     free(msg);
     pthread_exit(NULL);
 }
@@ -279,7 +299,7 @@ int main(int argc, char **argv) {
         start.poly[i] = ((rand() % (1 << (order - 2))) << 1) + startcoeff;
     }
 
-    start.conv = correct_convolutional_sse_create(rate, order, start.poly);
+    start.conv = conv_create(rate, order, start.poly);
 
     size_t num_scratches = 4;
     float *weights;
@@ -287,7 +307,7 @@ int main(int argc, char **argv) {
     double *eb_n0;
 
     for (size_t i = 0; i < num_scratches; i++) {
-        scratches[i] = resize_sse_conv_testbench(NULL, start.conv, max_block_len);
+        scratches[i] = resize_conv_testbench(NULL, conv_enclen, start.conv, max_block_len);
     }
 
     switch (order) {
@@ -320,7 +340,7 @@ int main(int argc, char **argv) {
             n_iter, bpsk_voltage);
 
     free(start.poly);
-    correct_convolutional_sse_destroy(start.conv);
+    conv_destroy(start.conv);
     for (size_t i = 0; i < num_scratches; i++) {
         free_scratch(scratches[i]);
     }

@@ -23,10 +23,14 @@ size_t test_conv(correct_convolutional *conv, conv_testbench **testbench_ptr,
             msg[j] = rand() % 256;
         }
 
-        *testbench_ptr = resize_conv_testbench(*testbench_ptr, conv, block_len);
+        *testbench_ptr = resize_conv_testbench(*testbench_ptr, conv_correct_enclen, conv, block_len);
         conv_testbench *testbench = *testbench_ptr;
+        testbench->encoder = conv;
+        testbench->encode = conv_correct_encode;
+        testbench->decoder = conv;
+        testbench->decode = conv_correct_decode;
         build_white_noise(testbench->noise, testbench->enclen, eb_n0, bpsk_bit_energy);
-        num_errors += test_conv_noise(conv, msg, block_len, testbench, bpsk_voltage);
+        num_errors += test_conv_noise(testbench, msg, block_len, bpsk_voltage);
     }
     free(msg);
     return num_errors;

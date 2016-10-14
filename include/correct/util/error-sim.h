@@ -5,7 +5,6 @@
 #include <float.h>
 
 #include "correct.h"
-#include "correct-sse.h"
 
 size_t distance(uint8_t *a, uint8_t *b, size_t len);
 void gaussian(double *res, size_t n_res, double sigma);
@@ -36,10 +35,11 @@ typedef struct {
     void *decoder;
 } conv_testbench;
 
-conv_testbench *resize_conv_testbench(conv_testbench *scratch, correct_convolutional *conv, size_t msg_len);
+conv_testbench *resize_conv_testbench(conv_testbench *scratch, size_t (*enclen)(void *, size_t), void *enc, size_t msg_len);
 void free_scratch(conv_testbench *scratch);
-int test_conv_noise(correct_convolutional *conv, uint8_t *msg, size_t n_bytes,
-                    conv_testbench *scratch, double bpsk_voltage);
-conv_testbench *resize_sse_conv_testbench(conv_testbench *scratch, correct_convolutional_sse *conv, size_t msg_len);
-int test_sse_conv_noise(correct_convolutional_sse *conv, uint8_t *msg, size_t n_bytes,
-                    conv_testbench *scratch, double bpsk_voltage);
+int test_conv_noise(conv_testbench *scratch, uint8_t *msg, size_t n_bytes,
+                    double bpsk_voltage);
+
+size_t conv_correct_enclen(void *conv_v, size_t msg_len);
+void conv_correct_encode(void *conv_v, uint8_t *msg, size_t msg_len, uint8_t *encoded);
+void conv_correct_decode(void *conv_v, uint8_t *soft, size_t soft_len, uint8_t *msg);
