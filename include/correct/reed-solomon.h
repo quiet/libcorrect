@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+#include <stdint.h>
+#include <unistd.h>
 
 // an element in GF(2^8)
 typedef uint8_t field_element_t;

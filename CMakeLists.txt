@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(Correct)
 include(CheckLibraryExists)
 include(CheckIncludeFiles)
+include(CheckCXXSourceCompiles)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -O0 -march=native -fsanitize=address")
@@ -19,7 +20,12 @@ endif()
 
 find_library(FEC fec)
 CHECK_LIBRARY_EXISTS(FEC dotprod "" HAVE_LIBFEC)
-CHECK_INCLUDE_FILES(x86intrin.h HAVE_SSE)
+check_cxx_source_compiles("
+    #include <x86intrin.h>
+    int main() {
+      __m128i vec;
+      return 0;
+    }" HAVE_SSE)
 
 if(HAVE_SSE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.2")
@@ -39,15 +45,15 @@ set(INSTALL_HEADERS "${CMAKE_BINARY_DIR}/include/correct.h")
 add_custom_target(correct-h ALL COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/include/correct.h ${CMAKE_BINARY_DIR}/include/correct.h)
 
 if(HAVE_SSE)
-  add_library(correct SHARED $<TARGET_OBJECTS:correct-reed-solomon> $<TARGET_OBJECTS:correct-convolutional> $<TARGET_OBJECTS:correct-convolutional-sse>)
-  add_library(correct_static $<TARGET_OBJECTS:correct-reed-solomon> $<TARGET_OBJECTS:correct-convolutional> $<TARGET_OBJECTS:correct-convolutional-sse>)
+  set(correct_obj_files $<TARGET_OBJECTS:correct-reed-solomon> $<TARGET_OBJECTS:correct-convolutional> $<TARGET_OBJECTS:correct-convolutional-sse>)
   set(INSTALL_HEADERS ${INSTALL_HEADERS} ${CMAKE_BINARY_DIR}/include/correct-sse.h)
   add_custom_target(correct-sse-h ALL COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/include/correct-sse.h ${CMAKE_BINARY_DIR}/include/correct-sse.h)
   add_definitions(-DHAVE_SSE=1)
 else()
-  add_library(correct SHARED $<TARGET_OBJECTS:correct-reed-solomon> $<TARGET_OBJECTS:correct-convolutional>)
-  add_library(correct_static $<TARGET_OBJECTS:correct-reed-solomon> $<TARGET_OBJECTS:correct-convolutional>)
+  set(correct_obj_files $<TARGET_OBJECTS:correct-reed-solomon> $<TARGET_OBJECTS:correct-convolutional>)
 endif()
+add_library(correct SHARED ${correct_obj_files})
+add_library(correct_static ${correct_obj_files})
 set_target_properties(correct_static PROPERTIES OUTPUT_NAME "correct")
 
 add_subdirectory(util)
@@ -59,11 +65,9 @@ install(TARGETS correct correct_static
         DESTINATION lib)
 install(FILES ${INSTALL_HEADERS} DESTINATION "${CMAKE_INSTALL_PREFIX}/include")
 
-add_library(fec_shim_static EXCLUDE_FROM_ALL src/fec_shim.c)
-target_link_libraries(fec_shim_static correct_static)
+add_library(fec_shim_static EXCLUDE_FROM_ALL src/fec_shim.c ${correct_obj_files})
 set_target_properties(fec_shim_static PROPERTIES OUTPUT_NAME "fec")
-add_library(fec_shim_shared SHARED EXCLUDE_FROM_ALL src/fec_shim.c)
-target_link_libraries(fec_shim_shared correct_static)
+add_library(fec_shim_shared SHARED EXCLUDE_FROM_ALL src/fec_shim.c ${correct_obj_files})
 set_target_properties(fec_shim_shared PROPERTIES OUTPUT_NAME "fec")
 add_custom_target(fec-shim-h COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/include/fec_shim.h ${CMAKE_BINARY_DIR}/include/fec.h)
 add_custom_target(shim DEPENDS fec_shim_static fec_shim_shared fec-shim-h)
