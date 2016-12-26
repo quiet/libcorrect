@@ -1,7 +1,11 @@
 #ifndef CORRECT_H
 #define CORRECT_H
 #include <stdint.h>
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#define ssize_t int
+#endif
 
 // Convolutional Codes
 
