@@ -1,8 +1,11 @@
 #ifndef CORRECT_H
 #define CORRECT_H
 #include <stdint.h>
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <unistd.h>
+#ifdef __MINGW32__
+#define ssize_t int
+#endif
 #else
 #define ssize_t int
 #endif

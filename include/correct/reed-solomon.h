@@ -6,10 +6,13 @@
 #include <stdbool.h>
 #include <time.h>
 #include <stdint.h>
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <unistd.h>
-#else
+#ifdef __MINGW32__
 #define ssize_t int
+#endif
+#else
+	#define ssize_t int
 #endif
 
 // an element in GF(2^8)

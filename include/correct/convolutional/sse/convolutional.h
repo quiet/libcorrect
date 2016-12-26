@@ -2,7 +2,7 @@
 #include "correct/convolutional/sse/lookup.h"
 // BIG HEAPING TODO sort out the include mess
 #include "correct-sse.h"
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <intrin.h>
 #else
 #include <x86intrin.h>

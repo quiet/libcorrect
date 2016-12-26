@@ -1,5 +1,5 @@
 #include "correct/convolutional/lookup.h"
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <intrin.h>
 #else
 #include <x86intrin.h>
