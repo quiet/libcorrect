@@ -1,5 +1,9 @@
 #include "correct/convolutional/lookup.h"
+#ifdef _MSC_VER
+#include <intrin.h>
+#else
 #include <x86intrin.h>
+#endif
 
 typedef unsigned int distance_quad_key_t;
 typedef unsigned int output_quad_t;

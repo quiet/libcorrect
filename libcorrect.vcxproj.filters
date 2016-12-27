@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\correct">
+      <UniqueIdentifier>{b6e14005-1442-4ab7-8bba-1e8d62914767}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\correct\convolutional">
+      <UniqueIdentifier>{bc3ab159-0418-4915-8baa-6bafd6352ada}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\correct\reed-solomon">
+      <UniqueIdentifier>{831f09b2-1728-485c-b019-2d7e7c92de77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\correct\util">
+      <UniqueIdentifier>{60c2a483-4e8b-456b-a54f-5b55f922b28e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\correct\convolutional\sse">
+      <UniqueIdentifier>{7a517274-0e67-45b2-8e80-130a0a005518}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\convolutional">
+      <UniqueIdentifier>{a9760bd8-61f0-407e-88ff-34e0b016a153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\reed-solomon">
+      <UniqueIdentifier>{4edadaca-8cec-4962-9afa-16b2cb8b5bb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\convolutional\sse">
+      <UniqueIdentifier>{37861685-b2af-41f9-93fd-8a4eb75cbfe5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\correct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct-sse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fec_shim.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\convolutional.h">
+      <Filter>Header Files\correct</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\reed-solomon.h">
+      <Filter>Header Files\correct</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\convolutional\bit.h">
+      <Filter>Header Files\correct\convolutional</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\convolutional\convolutional.h">
+      <Filter>Header Files\correct\convolutional</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\convolutional\error_buffer.h">
+      <Filter>Header Files\correct\convolutional</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\convolutional\history_buffer.h">
+      <Filter>Header Files\correct\convolutional</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\convolutional\lookup.h">
+      <Filter>Header Files\correct\convolutional</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\convolutional\metric.h">
+      <Filter>Header Files\correct\convolutional</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\convolutional\sse\convolutional.h">
+      <Filter>Header Files\correct\convolutional\sse</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\convolutional\sse\lookup.h">
+      <Filter>Header Files\correct\convolutional\sse</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\reed-solomon\decode.h">
+      <Filter>Header Files\correct\reed-solomon</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\reed-solomon\encode.h">
+      <Filter>Header Files\correct\reed-solomon</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\reed-solomon\field.h">
+      <Filter>Header Files\correct\reed-solomon</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\reed-solomon\polynomial.h">
+      <Filter>Header Files\correct\reed-solomon</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\reed-solomon\reed-solomon.h">
+      <Filter>Header Files\correct\reed-solomon</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\util\error-sim.h">
+      <Filter>Header Files\correct\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\util\error-sim-fec.h">
+      <Filter>Header Files\correct\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\util\error-sim-shim.h">
+      <Filter>Header Files\correct\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\correct\util\error-sim-sse.h">
+      <Filter>Header Files\correct\util</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\fec_shim.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\bit.c">
+      <Filter>Source Files\convolutional</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\convolutional.c">
+      <Filter>Source Files\convolutional</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\decode.c">
+      <Filter>Source Files\convolutional</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\encode.c">
+      <Filter>Source Files\convolutional</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\error_buffer.c">
+      <Filter>Source Files\convolutional</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\history_buffer.c">
+      <Filter>Source Files\convolutional</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\lookup.c">
+      <Filter>Source Files\convolutional</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\metric.c">
+      <Filter>Source Files\convolutional</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\sse\convolutional.c">
+      <Filter>Source Files\convolutional\sse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\sse\decode.c">
+      <Filter>Source Files\convolutional\sse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\sse\encode.c">
+      <Filter>Source Files\convolutional\sse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\sse\lookup.c">
+      <Filter>Source Files\convolutional\sse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reed-solomon\decode.c">
+      <Filter>Source Files\reed-solomon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reed-solomon\encode.c">
+      <Filter>Source Files\reed-solomon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reed-solomon\polynomial.c">
+      <Filter>Source Files\reed-solomon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reed-solomon\reed-solomon.c">
+      <Filter>Source Files\reed-solomon</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
