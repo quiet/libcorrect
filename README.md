@@ -1,5 +1,6 @@
 [libcorrect](https://github.com/quiet/libcorrect)
 ===========
+[![Analytics](https://quiet-ga.appspot.com/UA-89475295-2/welcome-page)](https://github.com/igrigorik/ga-beacon)
 
 libcorrect is a library for Forward Error Correction. By using libcorrect, you can encode extra redundancy into a packet of data and then send it across a lossy channel. When the packet is received, it can be decoded to recover the original, pre-encoded data.
 
