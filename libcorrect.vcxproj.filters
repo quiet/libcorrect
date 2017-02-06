@@ -134,28 +134,28 @@
     <ClCompile Include="src\convolutional\metric.c">
       <Filter>Source Files\convolutional</Filter>
     </ClCompile>
-    <ClCompile Include="src\convolutional\sse\convolutional.c">
-      <Filter>Source Files\convolutional\sse</Filter>
-    </ClCompile>
-    <ClCompile Include="src\convolutional\sse\decode.c">
-      <Filter>Source Files\convolutional\sse</Filter>
-    </ClCompile>
-    <ClCompile Include="src\convolutional\sse\encode.c">
-      <Filter>Source Files\convolutional\sse</Filter>
-    </ClCompile>
-    <ClCompile Include="src\convolutional\sse\lookup.c">
-      <Filter>Source Files\convolutional\sse</Filter>
-    </ClCompile>
-    <ClCompile Include="src\reed-solomon\decode.c">
-      <Filter>Source Files\reed-solomon</Filter>
-    </ClCompile>
-    <ClCompile Include="src\reed-solomon\encode.c">
-      <Filter>Source Files\reed-solomon</Filter>
-    </ClCompile>
     <ClCompile Include="src\reed-solomon\polynomial.c">
       <Filter>Source Files\reed-solomon</Filter>
     </ClCompile>
     <ClCompile Include="src\reed-solomon\reed-solomon.c">
+      <Filter>Source Files\reed-solomon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\sse\convolutional_sse.c">
+      <Filter>Source Files\convolutional\sse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\sse\decode_sse.c">
+      <Filter>Source Files\convolutional\sse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\sse\encode_sse.c">
+      <Filter>Source Files\convolutional\sse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\convolutional\sse\lookup_sse.c">
+      <Filter>Source Files\convolutional\sse</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reed-solomon\rsdecode.c">
+      <Filter>Source Files\reed-solomon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\reed-solomon\rsencode.c">
       <Filter>Source Files\reed-solomon</Filter>
     </ClCompile>
   </ItemGroup>

@@ -10,19 +10,19 @@ typedef struct {
     size_t len;
 } bit_writer_t;
 
-bit_writer_t *bit_writer_create(uint8_t *bytes, size_t len);
+DLL_EXPORT bit_writer_t *bit_writer_create(uint8_t *bytes, size_t len);
 
-void bit_writer_reconfigure(bit_writer_t *w, uint8_t *bytes, size_t len);
+DLL_EXPORT void bit_writer_reconfigure(bit_writer_t *w, uint8_t *bytes, size_t len);
 
-void bit_writer_destroy(bit_writer_t *w);
+DLL_EXPORT void bit_writer_destroy(bit_writer_t *w);
 
-void bit_writer_write(bit_writer_t *w, uint8_t val, unsigned int n);
+DLL_EXPORT void bit_writer_write(bit_writer_t *w, uint8_t val, unsigned int n);
 
-void bit_writer_write_1(bit_writer_t *w, uint8_t val);
+DLL_EXPORT void bit_writer_write_1(bit_writer_t *w, uint8_t val);
 
-void bit_writer_write_bitlist_reversed(bit_writer_t *w, uint8_t *l, size_t len);
+DLL_EXPORT void bit_writer_write_bitlist_reversed(bit_writer_t *w, uint8_t *l, size_t len);
 
-void bit_writer_flush_byte(bit_writer_t *w);
+DLL_EXPORT void bit_writer_flush_byte(bit_writer_t *w);
 
 typedef struct {
     uint8_t current_byte;
@@ -32,11 +32,11 @@ typedef struct {
     const uint8_t *bytes;
 } bit_reader_t;
 
-bit_reader_t *bit_reader_create(const uint8_t *bytes, size_t len);
+DLL_EXPORT bit_reader_t *bit_reader_create(const uint8_t *bytes, size_t len);
 
-void bit_reader_reconfigure(bit_reader_t *r, const uint8_t *bytes, size_t len);
+DLL_EXPORT void bit_reader_reconfigure(bit_reader_t *r, const uint8_t *bytes, size_t len);
 
-void bit_reader_destroy(bit_reader_t *r);
+DLL_EXPORT void bit_reader_destroy(bit_reader_t *r);
 
-uint8_t bit_reader_read(bit_reader_t *r, unsigned int n);
+DLL_EXPORT uint8_t bit_reader_read(bit_reader_t *r, unsigned int n);
 #endif

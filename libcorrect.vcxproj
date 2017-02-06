@@ -148,13 +148,13 @@
     <ClCompile Include="src\convolutional\history_buffer.c" />
     <ClCompile Include="src\convolutional\lookup.c" />
     <ClCompile Include="src\convolutional\metric.c" />
-    <ClCompile Include="src\convolutional\sse\convolutional.c" />
-    <ClCompile Include="src\convolutional\sse\decode.c" />
-    <ClCompile Include="src\convolutional\sse\encode.c" />
-    <ClCompile Include="src\convolutional\sse\lookup.c" />
+    <ClCompile Include="src\convolutional\sse\convolutional_sse.c" />
+    <ClCompile Include="src\convolutional\sse\decode_sse.c" />
+    <ClCompile Include="src\convolutional\sse\encode_sse.c" />
+    <ClCompile Include="src\convolutional\sse\lookup_sse.c" />
     <ClCompile Include="src\fec_shim.c" />
-    <ClCompile Include="src\reed-solomon\decode.c" />
-    <ClCompile Include="src\reed-solomon\encode.c" />
+    <ClCompile Include="src\reed-solomon\rsdecode.c" />
+    <ClCompile Include="src\reed-solomon\rsencode.c" />
     <ClCompile Include="src\reed-solomon\polynomial.c" />
     <ClCompile Include="src\reed-solomon\reed-solomon.c" />
   </ItemGroup>

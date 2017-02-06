@@ -7,12 +7,14 @@
 #include <time.h>
 #include <stdint.h>
 #ifndef _MSC_VER
-#include <unistd.h>
-#ifdef __MINGW32__
-#define ssize_t int
-#endif
+#	include <unistd.h>
+#	ifdef __MINGW32__
+#		define ssize_t int
+#	endif
+#	define DLL_EXPORT
 #else
-	#define ssize_t int
+#	define DLL_EXPORT extern __declspec(dllexport)
+#	define ssize_t int
 #endif
 
 // an element in GF(2^8)
