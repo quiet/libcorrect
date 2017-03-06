@@ -271,3 +271,4 @@ ssize_t correct_reed_solomon_decode_with_erasures(correct_reed_solomon *rs, cons
 void correct_reed_solomon_destroy(correct_reed_solomon *rs);
 
 #endif
+
