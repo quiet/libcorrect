@@ -20,11 +20,11 @@ size_t correct_convolutional_sse_encode_len(correct_convolutional_sse *conv, siz
 size_t correct_convolutional_sse_encode(correct_convolutional_sse *conv, const uint8_t *msg,
                                         size_t msg_len, uint8_t *encoded);
 
-size_t correct_convolutional_sse_decode(correct_convolutional_sse *conv, const uint8_t *encoded,
-                                        size_t num_encoded_bits, uint8_t *msg);
+ssize_t correct_convolutional_sse_decode(correct_convolutional_sse *conv, const uint8_t *encoded,
+                                         size_t num_encoded_bits, uint8_t *msg);
 
-size_t correct_convolutional_sse_decode_soft(correct_convolutional_sse *conv,
-                                             const correct_convolutional_soft_t *encoded,
-                                             size_t num_encoded_bits, uint8_t *msg);
+ssize_t correct_convolutional_sse_decode_soft(correct_convolutional_sse *conv,
+                                              const correct_convolutional_soft_t *encoded,
+                                              size_t num_encoded_bits, uint8_t *msg);
 
 #endif

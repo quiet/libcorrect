@@ -24,6 +24,8 @@ void bit_writer_write_bitlist_reversed(bit_writer_t *w, uint8_t *l, size_t len);
 
 void bit_writer_flush_byte(bit_writer_t *w);
 
+size_t bit_writer_length(bit_writer_t *w);
+
 typedef struct {
     uint8_t current_byte;
     size_t byte_index;

@@ -10,7 +10,7 @@
 size_t max_block_len = 4096;
 
 size_t test_conv(correct_convolutional *conv, void *fec,
-                 void (*decode)(void *, uint8_t *, size_t, uint8_t *),
+                 ssize_t (*decode)(void *, uint8_t *, size_t, uint8_t *),
                  conv_testbench **testbench_ptr, size_t msg_len, double eb_n0,
                  double bpsk_bit_energy, double bpsk_voltage) {
     uint8_t *msg = malloc(max_block_len);
@@ -40,7 +40,7 @@ size_t test_conv(correct_convolutional *conv, void *fec,
 }
 
 void assert_test_result(correct_convolutional *conv, void *fec,
-                        void (*decode)(void *, uint8_t *, size_t, uint8_t *),
+                        ssize_t (*decode)(void *, uint8_t *, size_t, uint8_t *),
                         conv_testbench **testbench, size_t test_length, size_t rate, size_t order,
                         double eb_n0, double error_rate) {
     double bpsk_voltage = 1.0 / sqrt(2.0);

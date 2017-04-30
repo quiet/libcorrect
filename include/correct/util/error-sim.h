@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <float.h>
+#include <stdio.h>
 
 #include "correct.h"
 
@@ -31,7 +32,7 @@ typedef struct {
     size_t enclen_bytes;
     void (*encode)(void *, uint8_t *msg, size_t msg_len, uint8_t *encoded);
     void *encoder;
-    void (*decode)(void *, uint8_t *soft, size_t soft_len, uint8_t *msg);
+    ssize_t (*decode)(void *, uint8_t *soft, size_t soft_len, uint8_t *msg);
     void *decoder;
 } conv_testbench;
 
@@ -42,4 +43,4 @@ int test_conv_noise(conv_testbench *scratch, uint8_t *msg, size_t n_bytes,
 
 size_t conv_correct_enclen(void *conv_v, size_t msg_len);
 void conv_correct_encode(void *conv_v, uint8_t *msg, size_t msg_len, uint8_t *encoded);
-void conv_correct_decode(void *conv_v, uint8_t *soft, size_t soft_len, uint8_t *msg);
+ssize_t conv_correct_decode(void *conv_v, uint8_t *soft, size_t soft_len, uint8_t *msg);

@@ -262,9 +262,9 @@ void _convolutional_decode_init(correct_convolutional *conv, unsigned int min_tr
     conv->errors = error_buffer_create(conv->numstates);
 }
 
-static size_t _convolutional_decode(correct_convolutional *conv, size_t num_encoded_bits,
-                                    size_t num_encoded_bytes, uint8_t *msg,
-                                    const soft_t *soft_encoded) {
+static ssize_t _convolutional_decode(correct_convolutional *conv, size_t num_encoded_bits,
+                                     size_t num_encoded_bytes, uint8_t *msg,
+                                     const soft_t *soft_encoded) {
     if (!conv->has_init_decode) {
         uint64_t max_error_per_input = conv->rate * soft_max;
         unsigned int renormalize_interval = distance_max / max_error_per_input;
@@ -286,17 +286,17 @@ static size_t _convolutional_decode(correct_convolutional *conv, size_t num_enco
 
     history_buffer_flush(conv->history_buffer, conv->bit_writer);
 
-    return decoded_len_bytes;
+    return bit_writer_length(conv->bit_writer);
 }
 
 // perform viterbi decoding
 // hard decoder
-size_t correct_convolutional_decode(correct_convolutional *conv, const uint8_t *encoded,
-                                    size_t num_encoded_bits, uint8_t *msg) {
+ssize_t correct_convolutional_decode(correct_convolutional *conv, const uint8_t *encoded,
+                                     size_t num_encoded_bits, uint8_t *msg) {
     if (num_encoded_bits % conv->rate) {
         // XXX turn this into an error code
         // printf("encoded length of message must be a multiple of rate\n");
-        return 0;
+        return -1;
     }
 
     size_t num_encoded_bytes =
@@ -306,12 +306,12 @@ size_t correct_convolutional_decode(correct_convolutional *conv, const uint8_t *
     return _convolutional_decode(conv, num_encoded_bits, num_encoded_bytes, msg, NULL);
 }
 
-size_t correct_convolutional_decode_soft(correct_convolutional *conv, const soft_t *encoded,
-                                         size_t num_encoded_bits, uint8_t *msg) {
+ssize_t correct_convolutional_decode_soft(correct_convolutional *conv, const soft_t *encoded,
+                                          size_t num_encoded_bits, uint8_t *msg) {
     if (num_encoded_bits % conv->rate) {
         // XXX turn this into an error code
         // printf("encoded length of message must be a multiple of rate\n");
-        return 0;
+        return -1;
     }
 
     size_t num_encoded_bytes =
