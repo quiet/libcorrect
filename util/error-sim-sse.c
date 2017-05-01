@@ -8,6 +8,6 @@ void conv_correct_sse_encode(void *conv_v, uint8_t *msg, size_t msg_len, uint8_t
     correct_convolutional_sse_encode((correct_convolutional_sse *)conv_v, msg, msg_len, encoded);
 }
 
-void conv_correct_sse_decode(void *conv_v, uint8_t *soft, size_t soft_len, uint8_t *msg) {
-    correct_convolutional_sse_decode_soft((correct_convolutional_sse *)conv_v, soft, soft_len, msg);
+ssize_t conv_correct_sse_decode(void *conv_v, uint8_t *soft, size_t soft_len, uint8_t *msg) {
+    return correct_convolutional_sse_decode_soft((correct_convolutional_sse *)conv_v, soft, soft_len, msg);
 }

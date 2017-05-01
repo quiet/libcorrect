@@ -163,6 +163,10 @@ void bit_writer_flush_byte(bit_writer_t *w) {
     }
 }
 
+size_t bit_writer_length(bit_writer_t *w) {
+    return w->byte_index;
+}
+
 uint8_t reverse_byte(uint8_t b) {
     return (b & 0x80) >> 7 | (b & 0x40) >> 5 | (b & 0x20) >> 3 |
            (b & 0x10) >> 1 | (b & 0x08) << 1 | (b & 0x04) << 3 |

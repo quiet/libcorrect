@@ -28,3 +28,5 @@ If you have any questions or problems with libcorrect, do not hesitate to open a
 
 -----------
 I'd like to thank Ryan Hitchman and Josh Gao for all of their help and rubber ducking.
+
+A huge thank you goes to https://github.com/MageSlayer for finding an error in the returned length of the convolutional code decoder.
