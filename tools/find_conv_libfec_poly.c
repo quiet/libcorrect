@@ -67,7 +67,7 @@ void find_poly_coeff(size_t rate, size_t order, uint8_t *msg, size_t msg_len, li
 
     // create a dummy encoder so that we can find how long the resulting encoded value is
     correct_convolutional *conv_dummy = correct_convolutional_create(rate, order, poly);
-    size_t enclen_bits = correct_convolutional_encode_len(conv_dummy, msg_len);
+    size_t enclen_bits = correct_convolutional_encode_len(conv_dummy, 8 * msg_len);
     size_t enclen = (enclen_bits % 8) ? (enclen_bits / 8 + 1) : enclen_bits / 8;
     correct_convolutional_destroy(conv_dummy);
 
@@ -92,7 +92,7 @@ void find_poly_coeff(size_t rate, size_t order, uint8_t *msg, size_t msg_len, li
         poly[search_coeff] = i;
         correct_convolutional *conv = correct_convolutional_create(rate, order, poly);
 
-        correct_convolutional_encode(conv, (uint8_t*)msg, msg_len, encoded);
+        correct_convolutional_encode(conv, (uint8_t*)msg, 8 * msg_len, encoded);
         byte2bit(encoded, encoded_bits, enclen);
 
         // now erase all the bits we're not searching for

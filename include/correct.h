@@ -50,13 +50,13 @@ correct_convolutional *correct_convolutional_create(size_t inv_rate, size_t orde
 void correct_convolutional_destroy(correct_convolutional *conv);
 
 /* correct_convolutional_encode_len returns the number of *bits*
- * in a msg_len of given size, in *bytes*. In order to convert
+ * in a msg_len of given size, also in bits. In order to convert
  * this returned length to bytes, save the result of the length
  * modulo 8. If it's nonzero, then the length in bytes is
  * length/8 + 1. If it is zero, then the length is just
  * length/8.
  */
-size_t correct_convolutional_encode_len(correct_convolutional *conv, size_t msg_len);
+size_t correct_convolutional_encode_len(correct_convolutional *conv, size_t msg_num_bits);
 
 /* correct_convolutional_encode uses the given conv instance to
  * encode a block of data and write it to encoded. The length of
@@ -69,7 +69,7 @@ size_t correct_convolutional_encode_len(correct_convolutional *conv, size_t msg_
  * this is not an exact multiple of 8, then it occupies an additional
  * byte.
  */
-size_t correct_convolutional_encode(correct_convolutional *conv, const uint8_t *msg, size_t msg_len,
+size_t correct_convolutional_encode(correct_convolutional *conv, const uint8_t *msg, size_t msg_num_bits,
                                     uint8_t *encoded);
 
 /* correct_convolutional_decode uses the given conv instance to

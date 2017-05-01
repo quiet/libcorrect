@@ -131,7 +131,7 @@ conv_testbench *resize_conv_testbench(conv_testbench *scratch, size_t (*enclen_f
 
     scratch->msg_out = realloc(scratch->msg_out, msg_len);
 
-    size_t enclen = enclen_f(enc, msg_len);
+    size_t enclen = enclen_f(enc, 8 * msg_len);
     size_t enclen_bytes = (enclen % 8) ? (enclen/8 + 1) : enclen/8;
     scratch->enclen = enclen;
     scratch->enclen_bytes = enclen_bytes;
@@ -156,7 +156,7 @@ void free_scratch(conv_testbench *scratch) {
 
 int test_conv_noise(conv_testbench *scratch, uint8_t *msg, size_t n_bytes,
                     double bpsk_voltage) {
-    scratch->encode(scratch->encoder, msg, n_bytes, scratch->encoded);
+    scratch->encode(scratch->encoder, msg, 8 * n_bytes, scratch->encoded);
     encode_bpsk(scratch->encoded, scratch->v, scratch->enclen, bpsk_voltage);
 
     memcpy(scratch->corrupted, scratch->v, scratch->enclen * sizeof(double));
@@ -167,8 +167,8 @@ int test_conv_noise(conv_testbench *scratch, uint8_t *msg, size_t n_bytes,
 
     ssize_t decode_len = scratch->decode(scratch->decoder, scratch->soft, scratch->enclen, scratch->msg_out);
 
-    if (decode_len != n_bytes) {
-        printf("expected to decode %zu bytes, decoded %zu bytes instead\n", n_bytes, decode_len);
+    if (decode_len != 8 * n_bytes) {
+        printf("expected to decode %zu bits, decoded %zu bits instead\n", 8 * n_bytes, decode_len);
         exit(1);
     }
 
