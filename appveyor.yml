@@ -1,0 +1,11 @@
+build: false
+version: 1.0.{build}
+
+branches:
+    only:
+        - win
+
+install:
+    cmake -G "Visual Studio 14 2015 Win64"
+    msbuild libcorrect.sln
+
