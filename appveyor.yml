@@ -6,6 +6,7 @@ branches:
         - win
 
 install:
-    cmake -G "Visual Studio 14 2015 Win64"
-    msbuild libcorrect.sln
+    - cmake -G "Visual Studio 14 2015 Win64"
+    - dir
+    - msbuild libcorrect.sln
 
