@@ -1,5 +1,6 @@
 [libcorrect](https://github.com/quiet/libcorrect)
 ===========
+[![Build status](https://ci.appveyor.com/api/projects/status/i3e84jmj00fa5my8/branch/master?svg=true)](https://ci.appveyor.com/project/brian-armstrong/libcorrect/branch/master)
 
 libcorrect is a library for Forward Error Correction. By using libcorrect, you can encode extra redundancy into a packet of data and then send it across a lossy channel. When the packet is received, it can be decoded to recover the original, pre-encoded data.
 
