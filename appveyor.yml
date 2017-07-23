@@ -13,7 +13,7 @@ install:
     - cmake --build . --config Release --target shim
     - cmake --build . --config Release --target test_runners
     - cd tests
-    - ctest
+    - ctest -C Release
     - cd lib
     - dumpbin /EXPORTS Release\fec.dll
 
