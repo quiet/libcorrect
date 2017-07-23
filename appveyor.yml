@@ -10,7 +10,7 @@ install:
     - cd build
     - cmake -G "Visual Studio 14 2015 Win64" ..
     - dir
-    - cmake --build . --config Release
+    - cmake --build . --config Release shim
     - git status
     - cd lib
     - dir /s
