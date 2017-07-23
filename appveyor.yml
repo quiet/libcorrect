@@ -12,9 +12,9 @@ install:
     - cmake -G "Visual Studio 14 2015 Win64" ..
     - cmake --build . --config Release --target shim
     - cmake --build . --config Release --target test_runners
+    - dumpbin /EXPORTS lib\Release\fec.dll
+
+test_script:
     - cd tests
     - set CTEST_OUTPUT_ON_FAILURE=1
     - ctest -C Release
-    - cd lib
-    - dumpbin /EXPORTS Release\fec.dll
-
