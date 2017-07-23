@@ -65,7 +65,7 @@ int main() {
 
     conv = correct_convolutional_sse_create(2, 6, correct_conv_r12_6_polynomial);
     assert_test_result(conv, &testbench, 1000000, 2, 6, INFINITY, 0);
-    assert_test_result(conv, &testbench, 1000000, 2, 6, 5.0, 5e-06);
+    assert_test_result(conv, &testbench, 1000000, 2, 6, 5.0, 8e-06);
     assert_test_result(conv, &testbench, 1000000, 2, 6, 4.5, 3e-05);
     correct_convolutional_sse_destroy(conv);
 
