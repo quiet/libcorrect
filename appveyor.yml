@@ -8,5 +8,5 @@ branches:
 install:
     - cmake -G "Visual Studio 14 2015 Win64"
     - dir
-    - cmake --build . --target Correct.sln --config Release
+    - cmake --build . --config Release
 
