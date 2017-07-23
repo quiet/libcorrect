@@ -12,6 +12,5 @@ install:
     - dir
     - cmake --build . --config Release
     - git status
-    - cd CMakeFiles
     - dir
 
