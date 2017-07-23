@@ -1,14 +1,15 @@
 #ifndef CORRECT_H
 #define CORRECT_H
 #include <stdint.h>
+
 #ifndef _MSC_VER
 #include <unistd.h>
-#ifdef __MINGW32__
-#define ssize_t int
-#endif
 #else
-#define ssize_t int
+#include <stddef.h>
+typedef ptrdiff_t ssize_t;
 #endif
+
+
 
 // Convolutional Codes
 
