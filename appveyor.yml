@@ -3,7 +3,7 @@ version: 1.0.{build}
 
 branches:
     only:
-        - win
+        - master
 
 install:
     - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
