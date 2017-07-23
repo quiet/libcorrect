@@ -91,7 +91,7 @@ int main() {
     conv = correct_convolutional_create(2, 9, correct_conv_r12_9_polynomial);
     assert_test_result(conv, &testbench, 1000000, 2, 9, INFINITY, 0);
     assert_test_result(conv, &testbench, 1000000, 2, 9, 4.5, 3e-06);
-    assert_test_result(conv, &testbench, 1000000, 2, 9, 4.0, 8e-06);
+    assert_test_result(conv, &testbench, 1000000, 2, 9, 4.0, 1e-05);
     correct_convolutional_destroy(conv);
 
     printf("\n");
