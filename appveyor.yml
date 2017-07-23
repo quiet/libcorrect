@@ -6,7 +6,9 @@ branches:
         - win
 
 install:
-    - cmake -G "Visual Studio 14 2015 Win64"
+    - mkdir build
+    - cd build
+    - cmake -G "Visual Studio 14 2015 Win64" ..
     - dir
     - cmake --build . --config Release
     - git status
