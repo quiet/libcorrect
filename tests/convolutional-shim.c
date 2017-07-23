@@ -110,7 +110,7 @@ int main() {
     conv = correct_convolutional_create(6, 15, poly);
     fec = create_viterbi615(8 * max_block_len);
     assert_test_result(conv, fec, conv_shim615_decode, &testbench, 100000, 6, 15, INFINITY, 0);
-    assert_test_result(conv, fec, conv_shim615_decode, &testbench, 100000, 6, 15, 3.0, 3e-06);
+    assert_test_result(conv, fec, conv_shim615_decode, &testbench, 100000, 6, 15, 3.0, 1e-05);
     assert_test_result(conv, fec, conv_shim615_decode, &testbench, 100000, 6, 15, 2.5, 3e-05);
     delete_viterbi615(fec);
     correct_convolutional_destroy(conv);
