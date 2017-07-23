@@ -10,7 +10,6 @@ install:
     - mkdir build
     - cd build
     - cmake -G "Visual Studio 14 2015 Win64" ..
-    - dir
     - cmake --build . --config Release --target shim
     - cmake --build . --config Release --target test_runners
     - cd tests
