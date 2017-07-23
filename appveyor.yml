@@ -12,8 +12,9 @@ install:
     - cmake -G "Visual Studio 14 2015 Win64" ..
     - dir
     - cmake --build . --config Release --target shim
-    - git status
+    - cmake --build . --config Release --target test_runners
+    - cd tests
+    - ctest
     - cd lib
-    - dir /s
     - dumpbin /EXPORTS Release\fec.dll
 
