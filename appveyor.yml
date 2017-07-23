@@ -14,4 +14,5 @@ install:
     - git status
     - cd lib
     - dir /s
+    - dumpbin.exe lib\Release\fec.lib
 
