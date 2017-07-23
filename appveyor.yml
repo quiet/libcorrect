@@ -15,5 +15,5 @@ install:
     - git status
     - cd lib
     - dir /s
-    - dumpbin /SYMBOLS Release\fec.lib
+    - dumpbin /EXPORT Release\fec.dll
 
