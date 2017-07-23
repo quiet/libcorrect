@@ -5,7 +5,7 @@ include(CheckIncludeFiles)
 include(CheckCXXSourceCompiles)
 
 if(MSVC)
-set(CMAKE_C_FLAGS "{CMAKE_C_FLAGS} /Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall")
 else(MSVC)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -std=c99 -Wpedantic -Wall")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
