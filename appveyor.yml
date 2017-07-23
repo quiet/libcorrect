@@ -12,5 +12,6 @@ install:
     - dir
     - cmake --build . --config Release
     - git status
+    - cd lib
     - dir
 
