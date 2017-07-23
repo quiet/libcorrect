@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "correct.h"
+#include "correct/portable.h"
 
 size_t distance(uint8_t *a, uint8_t *b, size_t len);
 void gaussian(double *res, size_t n_res, double sigma);

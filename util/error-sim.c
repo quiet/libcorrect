@@ -6,7 +6,7 @@ size_t distance(uint8_t *a, uint8_t *b, size_t len) {
         if (a[i] != b[i]) {
 
         }
-        dist += __builtin_popcount((unsigned int)a[i] ^ (unsigned int)b[i]);
+        dist += popcount((unsigned int)a[i] ^ (unsigned int)b[i]);
     }
     return dist;
 }

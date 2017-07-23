@@ -3,7 +3,7 @@
 // measure the hamming distance of two bit strings
 // implemented as population count of x XOR y
 inline distance_t metric_distance(unsigned int x, unsigned int y) {
-    return __builtin_popcount(x ^ y);
+    return popcount(x ^ y);
 }
 
 inline distance_t metric_soft_distance_linear(unsigned int hard_x, const uint8_t *soft_y, size_t len) {

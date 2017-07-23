@@ -12,7 +12,7 @@ void fill_table(unsigned int rate,
         unsigned int out = 0;
         unsigned int mask = 1;
         for (size_t j = 0; j < rate; j++) {
-            out |= (__builtin_popcount(i & poly[j]) % 2) ? mask : 0;
+            out |= (popcount(i & poly[j]) % 2) ? mask : 0;
             mask <<= 1;
         }
         table[i] = out;
