@@ -31,4 +31,8 @@ If you have any questions or problems with libcorrect, do not hesitate to open a
 -----------
 I'd like to thank Ryan Hitchman and Josh Gao for all of their help and rubber ducking.
 
-A huge thank you goes to https://github.com/MageSlayer for finding an error in the returned length of the convolutional code decoder.
+A huge thank you goes to [Lucas Teske](https://github.com/racerxdl) for finding all the ways that libcorrect was broken on Windows and to [Denis Golovan](https://github.com/MageSlayer) for finding an error in the returned length of the convolutional code decoder.
+
+
+
+
