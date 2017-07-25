@@ -100,7 +100,7 @@ int main() {
     fec = create_viterbi39(8 * max_block_len);
     assert_test_result(conv, fec, conv_shim39_decode, &testbench, 1000000, 3, 9, INFINITY, 0);
     assert_test_result(conv, fec, conv_shim39_decode, &testbench, 1000000, 3, 9, 4.5, 3e-06);
-    assert_test_result(conv, fec, conv_shim39_decode, &testbench, 1000000, 3, 9, 4.0, 5e-06);
+    assert_test_result(conv, fec, conv_shim39_decode, &testbench, 1000000, 3, 9, 4.0, 9e-06);
     delete_viterbi39(fec);
     correct_convolutional_destroy(conv);
 
