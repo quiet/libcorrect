@@ -16,7 +16,7 @@ environment:
         #  GENERATOR: "Visual Studio 14 2015 Win64"
         #  APPVEYOR_SAVE_CACHE_ON_ERROR: true
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-          COMPILER: "C:/projects/tools/LLVM/bin/clang-cl.exe"
+          COMPILER: "C:/projects/tools/LLVM-install/bin/clang-cl.exe"
           MSVC_BAT: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
           MSVC_BAT_ARCH: x86
           GENERATOR: "Ninja"
@@ -33,7 +33,7 @@ before_build:
 build_script:
     - mkdir build
     - cd build
-    - cmake -G "%GENERATOR%" -DCMAKE_C_COMPILER=%COMPILER% -DCMAKE_BUILD_TYPE=Release "-DLLVM_PATH=C:\projects\tools\llvm" ..
+    - cmake -G "%GENERATOR%" -DCMAKE_C_COMPILER=%COMPILER% -DCMAKE_CXX_COMPILER=%COMPILER% -DCMAKE_BUILD_TYPE=Release "-DLLVM_PATH=C:\projects\tools\llvm" ..
     - cmake --build . --config Release --target shim
     - cmake --build . --config Release --target test_runners
     - dumpbin /EXPORTS lib\Release\fec.dll

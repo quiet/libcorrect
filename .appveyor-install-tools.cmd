@@ -12,8 +12,8 @@ if NOT EXIST llvm-installer.exe (
     appveyor DownloadFile http://prereleases.llvm.org/win-snapshots/LLVM-5.0.0-r306282-win32.exe -FileName llvm-installer.exe
 )
 
-START /WAIT llvm-installer.exe /S /D=C:\"projects\tools\LLVM"
-@set PATH="C:\projects\tools\LLVM\bin";%PATH%
+START /WAIT llvm-installer.exe /S /D=C:\"projects\tools\LLVM-install"
+@set PATH="C:\projects\tools\LLVM-install\bin";%PATH%
 clang-cl -v
 
 if DEFINED MINGW_PATH rename "C:\Program Files\Git\usr\bin\sh.exe" "sh-ignored.exe"
@@ -43,6 +43,12 @@ if NOT EXIST ninja (
 )
 @set PATH=C:\projects\tools\ninja;%PATH%
 ninja --version
+
+::###########################################################################
+:: Setup the cached copy of LLVM
+::###########################################################################
+git clone --depth=1 http://llvm.org/git/llvm.git
+
 
 @echo off
 
