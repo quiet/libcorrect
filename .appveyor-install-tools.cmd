@@ -9,13 +9,12 @@ cd C:\projects\tools
 :: Setup Compiler
 ::###########################################################################
 if NOT EXIST llvm-installer.exe (
-  appveyor DownloadFile http://llvm.org/pre-releases/win-snapshots/LLVM-5.0.0-r303050-win32.exe -FileName llvm-installer.exe
+  appveyor DownloadFile http://prereleases.llvm.org/win-snapshots/LLVM-5.0.0-r306282-win32.exe -FileName llvm-installer.exe
 )
-if "%CLANG_VERSION%"=="ToT" (
-    START /WAIT llvm-installer.exe /S /D=C:\"Program Files\LLVM"
-)
-if DEFINED CLANG_VERSION  @set PATH="C:\Program Files\LLVM\bin";%PATH%
-if DEFINED CLANG_VERSION  clang-cl -v
+
+START /WAIT llvm-installer.exe /S /D=C:\"Program Files\LLVM"
+@set PATH="C:\Program Files\LLVM\bin";%PATH%
+clang-cl -v
 
 if DEFINED MINGW_PATH rename "C:\Program Files\Git\usr\bin\sh.exe" "sh-ignored.exe"
 if DEFINED MINGW_PATH @set "PATH=%PATH:C:\Program Files (x86)\Git\bin=%"
