@@ -9,13 +9,13 @@ branches:
 
 environment:
     matrix:
-        #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-        #  COMPILER: cl.exe
-        #  MSVC_BAT: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
-        #  MSVC_BAT_ARCH: x86
-        #  GENERATOR: "Visual Studio 14 2015 Win64"
-        #  APPVEYOR_SAVE_CACHE_ON_ERROR: true
-        #  DLL_PATH: lib\Release\fec.dll
+        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+          COMPILER: cl.exe
+          MSVC_BAT: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
+          MSVC_BAT_ARCH: x86
+          GENERATOR: "Visual Studio 14 2015 Win64"
+          APPVEYOR_SAVE_CACHE_ON_ERROR: true
+          DLL_PATH: lib\Release\fec.dll
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           COMPILER: "C:/projects/tools/LLVM-install/bin/clang-cl.exe"
           MSVC_BAT: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
