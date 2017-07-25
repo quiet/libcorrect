@@ -44,11 +44,4 @@ if NOT EXIST ninja (
 @set PATH=C:\projects\tools\ninja;%PATH%
 ninja --version
 
-::###########################################################################
-:: Setup the cached copy of LLVM
-::###########################################################################
-git clone --depth=1 http://llvm.org/git/llvm.git
-
-
 @echo off
-
