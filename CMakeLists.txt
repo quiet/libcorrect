@@ -43,17 +43,17 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 add_subdirectory(src)
 
-set(INSTALL_HEADERS "${CMAKE_BINARY_DIR}/include/correct.h")
+set(INSTALL_HEADERS "${PROJECT_BINARY_DIR}/include/correct.h")
 
-add_custom_target(correct-h ALL COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/include/correct.h ${CMAKE_BINARY_DIR}/include/correct.h)
+add_custom_target(correct-h ALL COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/include/correct.h ${PROJECT_BINARY_DIR}/include/correct.h)
 
 if(HAVE_SSE)
   set(correct_obj_files $<TARGET_OBJECTS:correct-reed-solomon> $<TARGET_OBJECTS:correct-convolutional> $<TARGET_OBJECTS:correct-convolutional-sse>)
-  set(INSTALL_HEADERS ${INSTALL_HEADERS} ${CMAKE_BINARY_DIR}/include/correct-sse.h)
-  add_custom_target(correct-sse-h ALL COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/include/correct-sse.h ${CMAKE_BINARY_DIR}/include/correct-sse.h)
+  set(INSTALL_HEADERS ${INSTALL_HEADERS} ${PROJECT_BINARY_DIR}/include/correct-sse.h)
+  add_custom_target(correct-sse-h ALL COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/include/correct-sse.h ${PROJECT_BINARY_DIR}/include/correct-sse.h)
   add_definitions(-DHAVE_SSE=1)
 else()
   set(correct_obj_files $<TARGET_OBJECTS:correct-reed-solomon> $<TARGET_OBJECTS:correct-convolutional>)
@@ -75,10 +75,10 @@ add_library(fec_shim_static EXCLUDE_FROM_ALL src/fec_shim.c ${correct_obj_files}
 set_target_properties(fec_shim_static PROPERTIES OUTPUT_NAME "fec")
 add_library(fec_shim_shared SHARED EXCLUDE_FROM_ALL src/fec_shim.c ${correct_obj_files})
 set_target_properties(fec_shim_shared PROPERTIES OUTPUT_NAME "fec")
-add_custom_target(fec-shim-h COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/include/fec_shim.h ${CMAKE_BINARY_DIR}/include/fec.h)
+add_custom_target(fec-shim-h COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/include/fec_shim.h ${PROJECT_BINARY_DIR}/include/fec.h)
 add_custom_target(shim DEPENDS fec_shim_static fec_shim_shared fec-shim-h)
 
 install(TARGETS fec_shim_static fec_shim_shared
         DESTINATION lib
         OPTIONAL)
-install(FILES ${CMAKE_BINARY_DIR}/include/fec.h DESTINATION "${CMAKE_INSTALL_PREFIX}/include" OPTIONAL)
+install(FILES ${PROJECT_BINARY_DIR}/include/fec.h DESTINATION "${CMAKE_INSTALL_PREFIX}/include" OPTIONAL)
