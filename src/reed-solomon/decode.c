@@ -474,6 +474,7 @@ ssize_t correct_reed_solomon_decode_with_erasures(correct_reed_solomon *rs, cons
     if (!reed_solomon_factorize_error_locator(rs->field, erasure_length, rs->error_locator_log, rs->error_roots, rs->element_exp)) {
         // roots couldn't be found, so there were too many errors to deal with
         // RS has failed for this message
+        free(syndrome_copy);
         return -1;
     }
 
@@ -481,7 +482,6 @@ ssize_t correct_reed_solomon_decode_with_erasures(correct_reed_solomon *rs, cons
     polynomial_mul(rs->field, rs->erasure_locator, rs->error_locator, temp_poly);
     polynomial_t placeholder_poly = rs->error_locator;
     rs->error_locator = temp_poly;
-
 
     reed_solomon_find_error_locations(rs->field, rs->generator_root_gap, rs->error_roots, rs->error_locations,
                                       rs->error_locator.order, erasure_length);
@@ -500,6 +500,9 @@ ssize_t correct_reed_solomon_decode_with_erasures(correct_reed_solomon *rs, cons
     for (unsigned int i = 0; i < msg_length; i++) {
         msg[i] = rs->received_polynomial.coeff[encoded_length - (i + 1)];
     }
+
+    polynomial_destroy(temp_poly);
+    free(syndrome_copy);
 
     return msg_length;
 }
