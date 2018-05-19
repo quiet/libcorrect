@@ -126,7 +126,7 @@ bool reed_solomon_factorize_error_locator(field_t field, unsigned int num_skip, 
     // just brute force search across every field element
     unsigned int root = num_skip;
     memset(roots + num_skip, 0, (locator_log.order) * sizeof(field_element_t));
-    for (field_operation_t i = 0; i < 256; i++) {
+    for (field_operation_t i = 0; i < field.field_size; i++) {
         // we make two optimizations here to help this search go faster
         // a) we have precomputed the first successive powers of every single element
         //   in the field. we need at most n powers, where n is the largest possible
@@ -212,7 +212,7 @@ void reed_solomon_find_error_locations(field_t field, field_logarithm_t generato
         }
 
         field_operation_t loc = field_div(field, 1, error_roots[i]);
-        for (field_operation_t j = 0; j < 256; j++) {
+        for (field_operation_t j = 0; j < field.field_size; j++) {
             if (field_pow(field, j, generator_root_gap) == loc) {
                 error_locations[i] = field.log[j];
                 break;
@@ -286,8 +286,8 @@ void correct_reed_solomon_decoder_create(correct_reed_solomon *rs) {
     // we would have to do this for chien search anyway, and its size is only 256 * min_distance bytes
     // for min_distance = 32 this is 8k of memory, a pittance for the speedup we receive in exchange
     // we also get to reuse this work during error value calculation
-    rs->element_exp = malloc(256 * sizeof(field_logarithm_t *));
-    for (field_operation_t i = 0; i < 256; i++) {
+    rs->element_exp = malloc(rs->field.field_size * sizeof(field_logarithm_t *));
+    for (field_operation_t i = 0; i < rs->field.field_size; i++) {
         rs->element_exp[i] = malloc(rs->min_distance * sizeof(field_logarithm_t));
         polynomial_build_exp_lut(rs->field, i, rs->min_distance - 1, rs->element_exp[i]);
     }
@@ -320,7 +320,11 @@ ssize_t correct_reed_solomon_decode(correct_reed_solomon *rs, const uint8_t *enc
     // | rem (rs->min_distance) | msg (msg_length) | pad (pad_length) |
 
     for (unsigned int i = 0; i < encoded_length; i++) {
-        rs->received_polynomial.coeff[i] = encoded[encoded_length - (i + 1)];
+        field_element_t element = encoded[encoded_length - (i + 1)];
+        if (element > rs->field.largest_element) {
+            return -1;
+        }
+        rs->received_polynomial.coeff[i] = element;
     }
 
     // fill the pad_length with 0s
