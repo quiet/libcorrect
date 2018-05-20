@@ -13,7 +13,7 @@ static polynomial_t reed_solomon_build_generator(field_t field, unsigned int nro
 
 correct_reed_solomon *correct_reed_solomon_create(field_operation_t primitive_polynomial, field_logarithm_t first_consecutive_root, field_logarithm_t generator_root_gap, size_t num_roots) {
     correct_reed_solomon *rs = calloc(1, sizeof(correct_reed_solomon));
-    rs->field = field_create(primitive_polynomial);
+    *(field_t*)&(rs->field) = field_create(primitive_polynomial);
 
     rs->block_length = rs->field.largest_element;
     rs->min_distance = num_roots;
