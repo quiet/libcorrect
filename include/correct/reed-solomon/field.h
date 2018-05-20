@@ -65,8 +65,8 @@ static inline field_t field_create(field_operation_t primitive_poly) {
     field_t field;
     *(field_element_t **)&field.exp = exp;
     *(field_logarithm_t **)&field.log = log;
-    *(unsigned int *)&field.field_size = field_size;
-    *(unsigned int *)&field.largest_element = largest_element;
+    field.field_size = field_size;
+    field.largest_element = largest_element;
 
     return field;
 }
