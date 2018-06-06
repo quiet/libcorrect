@@ -3,20 +3,16 @@
 #include <stdint.h>
 
 #ifndef _MSC_VER
-#include <unistd.h>
-#ifdef __MINGW32__
-#define ssize_t int
-#endif
-#define DLL_EXPORT
+# include <unistd.h>
+# ifdef __MINGW32__
+#   define ssize_t int
+# endif
+# define DLL_EXPORT
 #else
 #	define DLL_EXPORT extern __declspec(dllexport)
-#	define ssize_t int
 #	include <intrin.h>
 #	define __builtin_popcount __popcnt
-#endif
-
-#else
-#include <stddef.h>
+# include <stddef.h>
 typedef ptrdiff_t ssize_t;
 #endif
 
