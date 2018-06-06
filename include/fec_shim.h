@@ -62,6 +62,13 @@ int chainback_viterbi615(void *vit, unsigned char *decoded, unsigned int n_decod
 void delete_viterbi615(void *vit);
 
 // Misc other
-static inline int parity(unsigned int x) { return __builtin_parity(x); }
+static inline int parity(unsigned int x) {
+    /* http://graphics.stanford.edu/~seander/bithacks.html#ParityParallel */
+    x ^= x >> 16;
+    x ^= x >> 8;
+    x ^= x >> 4;
+    x &= 0xf;
+    return (0x6996 >> x) & 1;
+}
 
 #endif

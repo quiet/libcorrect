@@ -100,10 +100,9 @@ void history_buffer_traceback(history_buffer *buf, shift_register_t bestpath,
         } else {
             prefetch_index--;
         }
-#ifndef _MSC_VER
-		// MSVC Doesn't have a __builtin_prefetch equivalent
-        __builtin_prefetch(buf->history[prefetch_index]);
-#endif
+
+        prefetch(buf->history[prefetch_index]);
+
         // we're walking backwards from what the work we did before
         // so, we'll shift high order bits in
         // the path will cross multiple different shift register states, and we determine

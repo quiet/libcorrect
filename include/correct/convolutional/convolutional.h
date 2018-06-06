@@ -42,3 +42,4 @@ DLL_EXPORT void convolutional_decode_inner(correct_convolutional *conv, unsigned
 DLL_EXPORT void convolutional_decode_tail(correct_convolutional *conv, unsigned int sets,
                                const uint8_t *soft);
 #endif
+

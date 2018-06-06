@@ -10,7 +10,7 @@
 size_t max_block_len = 4096;
 
 size_t test_conv(correct_convolutional *conv, void *fec,
-                 void (*decode)(void *, uint8_t *, size_t, uint8_t *),
+                 ssize_t (*decode)(void *, uint8_t *, size_t, uint8_t *),
                  conv_testbench **testbench_ptr, size_t msg_len, double eb_n0,
                  double bpsk_bit_energy, double bpsk_voltage) {
     uint8_t *msg = malloc(max_block_len);
@@ -40,7 +40,7 @@ size_t test_conv(correct_convolutional *conv, void *fec,
 }
 
 void assert_test_result(correct_convolutional *conv, void *fec,
-                        void (*decode)(void *, uint8_t *, size_t, uint8_t *),
+                        ssize_t (*decode)(void *, uint8_t *, size_t, uint8_t *),
                         conv_testbench **testbench, size_t test_length, size_t rate, size_t order,
                         double eb_n0, double error_rate) {
     double bpsk_voltage = 1.0 / sqrt(2.0);
@@ -100,7 +100,7 @@ int main() {
     fec = create_viterbi39(8 * max_block_len);
     assert_test_result(conv, fec, conv_shim39_decode, &testbench, 1000000, 3, 9, INFINITY, 0);
     assert_test_result(conv, fec, conv_shim39_decode, &testbench, 1000000, 3, 9, 4.5, 3e-06);
-    assert_test_result(conv, fec, conv_shim39_decode, &testbench, 1000000, 3, 9, 4.0, 5e-06);
+    assert_test_result(conv, fec, conv_shim39_decode, &testbench, 1000000, 3, 9, 4.0, 9e-06);
     delete_viterbi39(fec);
     correct_convolutional_destroy(conv);
 
@@ -110,8 +110,8 @@ int main() {
     conv = correct_convolutional_create(6, 15, poly);
     fec = create_viterbi615(8 * max_block_len);
     assert_test_result(conv, fec, conv_shim615_decode, &testbench, 100000, 6, 15, INFINITY, 0);
-    assert_test_result(conv, fec, conv_shim615_decode, &testbench, 100000, 6, 15, 3.0, 3e-06);
-    assert_test_result(conv, fec, conv_shim615_decode, &testbench, 100000, 6, 15, 2.5, 1e-05);
+    assert_test_result(conv, fec, conv_shim615_decode, &testbench, 100000, 6, 15, 3.0, 2e-05);
+    assert_test_result(conv, fec, conv_shim615_decode, &testbench, 100000, 6, 15, 2.5, 4e-05);
     delete_viterbi615(fec);
     correct_convolutional_destroy(conv);
 

@@ -57,10 +57,6 @@ rs_test_run test_rs_errors(rs_test *test, rs_testbench *testbench, size_t msg_le
                     size_t num_errors, size_t num_erasures) {
     rs_test_run run;
     run.output_matches = false;
-    run.encoder_elapsed.tv_sec = 0;
-    run.encoder_elapsed.tv_usec = 0;
-    run.decoder_elapsed.tv_sec = 0;
-    run.decoder_elapsed.tv_usec = 0;
 
     if (msg_length > testbench->message_length) {
         return run;
@@ -70,22 +66,10 @@ rs_test_run test_rs_errors(rs_test *test, rs_testbench *testbench, size_t msg_le
         testbench->msg[i] = rand() % 256;
     }
 
-    struct timeval start, end;
-
     size_t block_length = msg_length + testbench->min_distance;
     size_t pad_length = testbench->message_length - msg_length;
 
-    gettimeofday(&start, NULL);
     test->encode(test->encoder, testbench->msg, msg_length, testbench->encoded);
-    gettimeofday(&end, NULL);
-
-    run.encoder_elapsed.tv_sec = end.tv_sec - start.tv_sec;
-    if (end.tv_usec < start.tv_usec) {
-        run.encoder_elapsed.tv_sec--;
-        run.encoder_elapsed.tv_usec = 1000000 + end.tv_usec - start.tv_usec;
-    } else {
-        run.encoder_elapsed.tv_usec = end.tv_usec - start.tv_usec;
-    }
 
     memcpy(testbench->corrupted_encoded, testbench->encoded, block_length);
 
@@ -108,19 +92,9 @@ rs_test_run test_rs_errors(rs_test *test, rs_testbench *testbench, size_t msg_le
         testbench->corrupted_encoded[index] ^= corruption_mask;
     }
 
-    gettimeofday(&start, NULL);
     test->decode(test->decoder, testbench->corrupted_encoded, block_length,
                  testbench->erasure_locations, num_erasures,
                  testbench->recvmsg, pad_length, testbench->min_distance);
-    gettimeofday(&end, NULL);
-
-    run.decoder_elapsed.tv_sec = end.tv_sec - start.tv_sec;
-    if (end.tv_usec < start.tv_usec) {
-        run.decoder_elapsed.tv_sec--;
-        run.decoder_elapsed.tv_usec = 1000000 + end.tv_usec - start.tv_usec;
-    } else {
-        run.decoder_elapsed.tv_usec = end.tv_usec - start.tv_usec;
-    }
 
     run.output_matches = (bool)(memcmp(testbench->msg, testbench->recvmsg, msg_length) == 0);
 

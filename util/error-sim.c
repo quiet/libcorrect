@@ -6,7 +6,7 @@ size_t distance(uint8_t *a, uint8_t *b, size_t len) {
         if (a[i] != b[i]) {
 
         }
-        dist += __builtin_popcount((unsigned int)a[i] ^ (unsigned int)b[i]);
+        dist += popcount((unsigned int)a[i] ^ (unsigned int)b[i]);
     }
     return dist;
 }
@@ -165,7 +165,12 @@ int test_conv_noise(conv_testbench *scratch, uint8_t *msg, size_t n_bytes,
 
     memset(scratch->msg_out, 0, n_bytes);
 
-    scratch->decode(scratch->decoder, scratch->soft, scratch->enclen, scratch->msg_out);
+    ssize_t decode_len = scratch->decode(scratch->decoder, scratch->soft, scratch->enclen, scratch->msg_out);
+
+    if (decode_len != n_bytes) {
+        printf("expected to decode %zu bytes, decoded %zu bytes instead\n", n_bytes, decode_len);
+        exit(1);
+    }
 
     return distance((uint8_t*)msg, scratch->msg_out, n_bytes);
 }
@@ -178,6 +183,6 @@ void conv_correct_encode(void *conv_v, uint8_t *msg, size_t msg_len, uint8_t *en
     correct_convolutional_encode((correct_convolutional *)conv_v, msg, msg_len, encoded);
 }
 
-void conv_correct_decode(void *conv_v, uint8_t *soft, size_t soft_len, uint8_t *msg) {
-    correct_convolutional_decode_soft((correct_convolutional *)conv_v, soft, soft_len, msg);
+ssize_t conv_correct_decode(void *conv_v, uint8_t *soft, size_t soft_len, uint8_t *msg) {
+    return correct_convolutional_decode_soft((correct_convolutional *)conv_v, soft, soft_len, msg);
 }

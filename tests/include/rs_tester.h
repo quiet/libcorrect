@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
-#include <sys/time.h>
 
 #include "correct.h"
 
@@ -36,8 +35,6 @@ void rs_testbench_destroy(rs_testbench *testbench);
 
 typedef struct {
     bool output_matches;
-    struct timeval encoder_elapsed;
-    struct timeval decoder_elapsed;
 } rs_test_run;
 
 rs_test_run test_rs_errors(rs_test *test, rs_testbench *testbench, size_t msg_length,

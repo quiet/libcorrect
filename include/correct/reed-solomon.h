@@ -6,16 +6,9 @@
 #include <stdbool.h>
 #include <time.h>
 #include <stdint.h>
-#ifndef _MSC_VER
-#	include <unistd.h>
-#	ifdef __MINGW32__
-#		define ssize_t int
-#	endif
-#	define DLL_EXPORT
-#else
-#	define DLL_EXPORT extern __declspec(dllexport)
-#	define ssize_t int
-#endif
+
+#include "correct.h"
+#include "correct/portable.h"
 
 // an element in GF(2^8)
 typedef uint8_t field_element_t;
@@ -38,7 +31,7 @@ typedef struct {
     unsigned int order;
 } polynomial_t;
 
-typedef struct {
+struct correct_reed_solomon {
     size_t block_length;
     size_t message_length;
     size_t min_distance;
@@ -79,5 +72,5 @@ typedef struct {
     polynomial_t init_from_roots_scratch[2];
     bool has_init_decode;
 
-} correct_reed_solomon;
+};
 #endif

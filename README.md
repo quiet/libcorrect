@@ -1,5 +1,7 @@
 [libcorrect](https://github.com/quiet/libcorrect)
 ===========
+[![OSX/Linux Build Status](https://travis-ci.org/quiet/libcorrect.svg?branch=master)](https://travis-ci.org/quiet/libcorrect)
+[![Windows Build status](https://ci.appveyor.com/api/projects/status/i3e84jmj00fa5my8/branch/master?svg=true)](https://ci.appveyor.com/project/brian-armstrong/libcorrect/branch/master)
 
 libcorrect is a library for Forward Error Correction. By using libcorrect, you can encode extra redundancy into a packet of data and then send it across a lossy channel. When the packet is received, it can be decoded to recover the original, pre-encoded data.
 
@@ -28,3 +30,9 @@ If you have any questions or problems with libcorrect, do not hesitate to open a
 
 -----------
 I'd like to thank Ryan Hitchman and Josh Gao for all of their help and rubber ducking.
+
+A huge thank you goes to [Lucas Teske](https://github.com/racerxdl) for finding all the ways that libcorrect was broken on Windows and to [Denis Golovan](https://github.com/MageSlayer) for finding an error in the returned length of the convolutional code decoder.
+
+
+
+

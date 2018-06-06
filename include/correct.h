@@ -1,6 +1,7 @@
 #ifndef CORRECT_H
 #define CORRECT_H
 #include <stdint.h>
+
 #ifndef _MSC_VER
 #include <unistd.h>
 #ifdef __MINGW32__
@@ -14,6 +15,10 @@
 #	define __builtin_popcount __popcnt
 #endif
 
+#else
+#include <stddef.h>
+typedef ptrdiff_t ssize_t;
+#endif
 
 // Convolutional Codes
 
@@ -97,10 +102,11 @@ DLL_EXPORT size_t correct_convolutional_encode(correct_convolutional *conv, cons
  * value should then be converted to bytes to find the correct
  * length for msg.
  *
- * This function returns the number of bytes written to msg.
+ * This function returns the number of bytes written to msg. If
+ * it fails, it returns -1.
  */
-DLL_EXPORT size_t correct_convolutional_decode(correct_convolutional *conv, const uint8_t *encoded,
-                                    size_t num_encoded_bits, uint8_t *msg);
+DLL_EXPORT ssize_t correct_convolutional_decode(correct_convolutional *conv, const uint8_t *encoded,
+                                     size_t num_encoded_bits, uint8_t *msg);
 
 /* correct_convolutional_decode_soft uses the given conv instance
  * to decode a block encoded by correct_convolutional_encode and
@@ -120,11 +126,12 @@ DLL_EXPORT size_t correct_convolutional_decode(correct_convolutional *conv, cons
  * value should then be converted to bytes to find the correct
  * length for msg.
  *
- * This function returns the number of bytes written to msg.
+ * This function returns the number of bytes written to msg. If
+ * it fails, it returns -1.
  */
-DLL_EXPORT size_t correct_convolutional_decode_soft(correct_convolutional *conv,
-                                         const correct_convolutional_soft_t *encoded,
-                                         size_t num_encoded_bits, uint8_t *msg);
+DLL_EXPORT ssize_t correct_convolutional_decode_soft(correct_convolutional *conv,
+                                          const correct_convolutional_soft_t *encoded,
+                                          size_t num_encoded_bits, uint8_t *msg);
 
 // Reed-Solomon
 
@@ -276,3 +283,4 @@ DLL_EXPORT ssize_t correct_reed_solomon_decode_with_erasures(correct_reed_solomo
 DLL_EXPORT void correct_reed_solomon_destroy(correct_reed_solomon *rs);
 
 #endif
+
