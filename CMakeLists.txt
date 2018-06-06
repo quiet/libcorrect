@@ -87,7 +87,7 @@ install(FILES ${PROJECT_BINARY_DIR}/include/fec.h DESTINATION "${CMAKE_INSTALL_P
 # Debian Package
 SET(CPACK_GENERATOR "DEB")
 SET(CPACK_PACKAGE_NAME "libcorrect")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Brian Armstrong")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Brian Armstrong <brian.armstrong.ece+github@gmail.com>")
 SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "C library for Convolutional codes and Reed-Solomon")
 INCLUDE(CPack)
 
