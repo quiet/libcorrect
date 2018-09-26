@@ -210,7 +210,7 @@ void test(size_t rate, size_t order,
         // added by our msg block iterations and then sorts by this metric
         search_exhaustive_fin(exhaustive, convs_len, weights, num_scratches);
 
-        // decide paramters for next loop iter
+        // decide parameters for next loop iter
         // if we've reduced to 20 or fewer items, we're going to just select
         // those and declare the test done
         size_t new_convs_len = (convs_len / 2) < 20 ? 20 : convs_len / 2;
