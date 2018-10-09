@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
-project(Correct)
+project(Correct C)
 include(CheckLibraryExists)
 include(CheckIncludeFiles)
-include(CheckCXXSourceCompiles)
+include(CheckCSourceCompiles)
 
 if(MSVC)
 set(LIBM "")
@@ -11,7 +11,7 @@ else(MSVC)
 set(LIBM "m")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -std=c99 -Wpedantic -Wall")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -O0 -march=native -fsanitize=address")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -O0 -fsanitize=address")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-no_pie,")
 else()
   if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
@@ -27,7 +27,7 @@ endif(MSVC)
 
 find_library(FEC fec)
 CHECK_LIBRARY_EXISTS(FEC dotprod "" HAVE_LIBFEC)
-check_cxx_source_compiles("
+check_c_source_compiles("
     #include <x86intrin.h>
     int main() {
       __m128i vec;
