@@ -6,7 +6,7 @@ static polynomial_t reed_solomon_build_generator(field_t field, unsigned int nro
     // generator has order 2*t
     // of form (x + alpha^1)(x + alpha^2)...(x - alpha^2*t)
     for (unsigned int i = 0; i < nroots; i++) {
-        roots[i] = field.exp[(root_gap * (i + first_consecutive_root)) % 255];
+        roots[i] = field.exp[(root_gap * (i + first_consecutive_root)) % field.largest_element];
     }
     return polynomial_create_from_roots(field, nroots, roots);
 }
@@ -15,7 +15,7 @@ correct_reed_solomon *correct_reed_solomon_create(field_operation_t primitive_po
     correct_reed_solomon *rs = calloc(1, sizeof(correct_reed_solomon));
     rs->field = field_create(primitive_polynomial);
 
-    rs->block_length = 255;
+    rs->block_length = rs->field.largest_element;
     rs->min_distance = num_roots;
     rs->message_length = rs->block_length - rs->min_distance;
 
@@ -35,7 +35,6 @@ correct_reed_solomon *correct_reed_solomon_create(field_operation_t primitive_po
 }
 
 void correct_reed_solomon_destroy(correct_reed_solomon *rs) {
-    field_destroy(rs->field);
     polynomial_destroy(rs->generator);
     free(rs->generator_roots);
     polynomial_destroy(rs->encoded_polynomial);
@@ -57,18 +56,19 @@ void correct_reed_solomon_destroy(correct_reed_solomon *rs) {
             free(rs->generator_root_exp[i]);
         }
         free(rs->generator_root_exp);
-        for (field_operation_t i = 0; i < 256; i++) {
+        for (field_operation_t i = 0; i < rs->field.field_size; i++) {
             free(rs->element_exp[i]);
         }
         free(rs->element_exp);
         polynomial_destroy(rs->init_from_roots_scratch[0]);
         polynomial_destroy(rs->init_from_roots_scratch[1]);
     }
+    field_destroy(rs->field);
     free(rs);
 }
 
 void correct_reed_solomon_debug_print(correct_reed_solomon *rs) {
-    for (unsigned int i = 0; i < 256; i++) {
+    for (unsigned int i = 0; i < rs->field.field_size; i++) {
         printf("%3d  %3d    %3d  %3d\n", i, rs->field.exp[i], i, rs->field.log[i]);
     }
     printf("\n");

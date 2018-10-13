@@ -67,7 +67,7 @@ int main() {
 
     correct_reed_solomon *rs = correct_reed_solomon_create(
         correct_rs_primitive_polynomial_ccsds, 1, 1, min_distance);
-    rs_testbench *testbench = rs_testbench_create(block_length, min_distance);
+    rs_testbench *testbench = rs_testbench_create(256, block_length, min_distance);
 
     pad_length = message_length / 2;
     fec_rs = init_rs_char(8, correct_rs_primitive_polynomial_ccsds, 1, 1, min_distance,
@@ -102,7 +102,7 @@ int main() {
     message_length = block_length - min_distance;
     rs = correct_reed_solomon_create(
         correct_rs_primitive_polynomial_ccsds, 1, 1, min_distance);
-    testbench = rs_testbench_create(block_length, min_distance);
+    testbench = rs_testbench_create(256, block_length, min_distance);
 
     pad_length = message_length / 2;
     fec_rs = init_rs_char(8, correct_rs_primitive_polynomial_ccsds, 1, 1, min_distance,

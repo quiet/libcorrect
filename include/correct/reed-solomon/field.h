@@ -24,15 +24,23 @@ static inline field_element_t field_mul_log_element(field_t field, field_logarit
 }
 
 static inline field_t field_create(field_operation_t primitive_poly) {
-    // in GF(2^8)
+    unsigned int width = 0;
+    field_operation_t temp_poly = primitive_poly >> 1;
+    while (temp_poly) {
+        temp_poly >>= 1;
+        ++width;
+    }
+    const unsigned int field_size = (1 << width);
+    const unsigned int largest_element = field_size - 1;
+    // in GF(2^width)
     // log and exp
-    // bits are in GF(2), compute alpha^val in GF(2^8)
-    // exp should be of size 512 so that it can hold a "wraparound" which prevents some modulo ops
-    // log should be of size 256. no wraparound here, the indices into this table are field elements
-    field_element_t *exp = malloc(512 * sizeof(field_element_t));
-    field_logarithm_t *log = malloc(256 * sizeof(field_logarithm_t));
+    // bits are in GF(2), compute alpha^val in GF(2^width)
+    // exp should be of size 2 * 2^width so that it can hold a "wraparound" which prevents some modulo ops
+    // log should be of size 2^width. no wraparound here, the indices into this table are field elements
+    field_element_t *exp = malloc(2 * field_size * sizeof(field_element_t));
+    field_logarithm_t *log = malloc(field_size * sizeof(field_logarithm_t));
 
-    // assume alpha is a primitive element, p(x) (primitive_poly) irreducible in GF(2^8)
+    // assume alpha is a primitive element, p(x) (primitive_poly) irreducible in GF(2^width)
     // addition is xor
     // subtraction is addition (also xor)
     // e.g. x^5 + x^4 + x^4 + x^2 + 1 = x^5 + x^2 + 1
@@ -45,11 +53,11 @@ static inline field_t field_create(field_operation_t primitive_poly) {
     field_operation_t element = 1;
     exp[0] = (field_element_t)element;
     log[0] = (field_logarithm_t)0;  // really, it's undefined. we shouldn't ever access this
-    for (field_operation_t i = 1; i < 512; i++) {
+    for (field_operation_t i = 1; i < 2 * field_size; i++) {
         element = element * 2;
-        element = (element > 255) ? (element ^ primitive_poly) : element;
+        element = (element > largest_element) ? (element ^ primitive_poly) : element;
         exp[i] = (field_element_t)element;
-        if (i < 256) {
+        if (i <= largest_element) {
             log[element] = (field_logarithm_t)i;
         }
     }
@@ -57,6 +65,8 @@ static inline field_t field_create(field_operation_t primitive_poly) {
     field_t field;
     *(field_element_t **)&field.exp = exp;
     *(field_logarithm_t **)&field.log = log;
+    field.field_size = field_size;
+    field.largest_element = largest_element;
 
     return field;
 }
@@ -99,13 +109,13 @@ static inline field_element_t field_mul(field_t field, field_element_t l, field_
     // yep, get your slide rules out
     field_operation_t res = (field_operation_t)field.log[l] + (field_operation_t)field.log[r];
 
-    // if coeff exceeds 255, we would normally have to wrap it back around
-    // alpha^255 = 1; alpha^256 = alpha^255 * alpha^1 = alpha^1
+    // if coeff exceeds largest_element, we would normally have to wrap it back around
+    // alpha^largest_element = 1; alpha^(largest_element + 1) = alpha^largest_element * alpha^1 = alpha^1
     // however, we've constructed exponentiation table so that
     //   we can just directly lookup this result
-    // the result must be clamped to [0, 511]
-    // the greatest we can see at this step is alpha^255 * alpha^255
-    //   = alpha^510
+    // the result must be clamped to [0, (2 * largest_element) + 1]
+    // the greatest we can see at this step is alpha^largest_element * alpha^largest_element
+    //   = alpha^(2 * largest_element)
     return field.exp[res];
 }
 
@@ -122,9 +132,9 @@ static inline field_element_t field_div(field_t field, field_element_t l, field_
     // division as subtraction of logarithms
 
     // if rcoeff is larger, then log[l] - log[r] wraps under
-    // so, instead, always add 255. in some cases, we'll wrap over, but
-    // that's ok because the exp table runs up to 511.
-    field_operation_t res = (field_operation_t)255 + (field_operation_t)field.log[l] - (field_operation_t)field.log[r];
+    // so, instead, always add largest_element. in some cases, we'll wrap over, but
+    // that's ok because the exp table runs up to (2 * largest_element) + 1.
+    field_operation_t res = (field_operation_t)field.largest_element + (field_operation_t)field.log[l] - (field_operation_t)field.log[r];
     return field.exp[res];
 }
 
@@ -134,20 +144,20 @@ static inline field_logarithm_t field_mul_log(field_t field, field_logarithm_t l
     field_operation_t res = (field_operation_t)l + (field_operation_t)r;
 
     // because we arent using the table, the value we return must be a valid logarithm
-    // which we have decided must live in [0, 255] (they are 8-bit values)
+    // which we have decided must live in [0, largest_element]
     // ensuring this makes it so that multiple muls will not reach past the end of the
     // exp table whenever we finally convert back to an element
-    if (res > 255) {
-        return (field_logarithm_t)(res - 255);
+    if (res > field.largest_element) {
+        return (field_logarithm_t)(res - field.largest_element);
     }
     return (field_logarithm_t)res;
 }
 
 static inline field_logarithm_t field_div_log(field_t field, field_logarithm_t l, field_logarithm_t r) {
     // like field_mul_log, this performs field_div without going through a field_element_t
-    field_operation_t res = (field_operation_t)255 + (field_operation_t)l - (field_operation_t)r;
-    if (res > 255) {
-        return (field_logarithm_t)(res - 255);
+    field_operation_t res = (field_operation_t)field.largest_element + (field_operation_t)l - (field_operation_t)r;
+    if (res > field.largest_element) {
+        return (field_logarithm_t)(res - field.largest_element);
     }
     return (field_logarithm_t)res;
 }
@@ -158,9 +168,9 @@ static inline field_element_t field_pow(field_t field, field_element_t elem, int
     // but here we have an arbitrary coeff
     field_logarithm_t log = field.log[elem];
     int res_log = log * pow;
-    int mod = res_log % 255;
+    int mod = res_log % field.largest_element;
     if (mod < 0) {
-        mod += 255;
+        mod += field.largest_element;
     }
     return field.exp[mod];
 }

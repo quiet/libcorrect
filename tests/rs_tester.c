@@ -23,13 +23,14 @@ void rs_correct_decode(void *decoder, uint8_t *encoded, size_t encoded_length,
         erasure_locations, erasure_length, msg);
 }
 
-rs_testbench *rs_testbench_create(size_t block_length, size_t min_distance) {
+rs_testbench *rs_testbench_create(size_t field_size, size_t block_length, size_t min_distance) {
     rs_testbench *testbench = calloc(1, sizeof(rs_testbench));
 
     size_t message_length = block_length - min_distance;
     testbench->message_length = message_length;
     testbench->block_length = block_length;
     testbench->min_distance = min_distance;
+    testbench->field_size = field_size;
 
     testbench->msg = calloc(message_length, sizeof(unsigned char));
     testbench->encoded = malloc(block_length * sizeof(uint8_t));
@@ -63,7 +64,7 @@ rs_test_run test_rs_errors(rs_test *test, rs_testbench *testbench, size_t msg_le
     }
 
     for (size_t i = 0; i < msg_length; i++) {
-        testbench->msg[i] = rand() % 256;
+        testbench->msg[i] = rand() % testbench->field_size;
     }
 
     size_t block_length = msg_length + testbench->min_distance;
@@ -81,14 +82,14 @@ rs_test_run test_rs_errors(rs_test *test, rs_testbench *testbench, size_t msg_le
 
     for (unsigned int i = 0; i < num_erasures; i++) {
         int index = testbench->indices[i];
-        uint8_t corruption_mask = (rand() % 255) + 1;
+        uint8_t corruption_mask = (rand() % (testbench->field_size - 1)) + 1;
         testbench->corrupted_encoded[index] ^= corruption_mask;
         testbench->erasure_locations[i] = index;
     }
 
     for (unsigned int i = 0; i < num_errors; i++) {
         int index = testbench->indices[i + num_erasures];
-        uint8_t corruption_mask = (rand() % 255) + 1;
+        uint8_t corruption_mask = (rand() % (testbench->field_size - 1)) + 1;
         testbench->corrupted_encoded[index] ^= corruption_mask;
     }
 

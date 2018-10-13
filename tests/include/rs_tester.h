@@ -12,6 +12,7 @@ void rs_correct_decode(void *decoder, uint8_t *encoded, size_t encoded_length,
                        uint8_t *msg, size_t pad_length, size_t num_roots);
 
 typedef struct {
+    size_t field_size;
     size_t block_length;
     size_t message_length;
     size_t min_distance;
@@ -30,7 +31,7 @@ typedef struct {
     void *decoder;
 } rs_test;
 
-rs_testbench *rs_testbench_create(size_t block_length, size_t min_distance);
+rs_testbench *rs_testbench_create(size_t field_size, size_t block_length, size_t min_distance);
 void rs_testbench_destroy(rs_testbench *testbench);
 
 typedef struct {
