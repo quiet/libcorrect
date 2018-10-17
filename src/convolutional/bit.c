@@ -17,6 +17,7 @@ void bit_writer_reconfigure(bit_writer_t *w, uint8_t *bytes, size_t len) {
     w->current_byte = 0;
     w->current_byte_len = 0;
     w->byte_index = 0;
+    w->last_byte_len = 0;
 }
 
 void bit_writer_destroy(bit_writer_t *w) {
@@ -159,12 +160,13 @@ void bit_writer_flush_byte(bit_writer_t *w) {
         w->current_byte <<= (8 - w->current_byte_len);
         w->bytes[w->byte_index] = w->current_byte;
         w->byte_index++;
+        w->last_byte_len = w->current_byte_len;
         w->current_byte_len = 0;
     }
 }
 
 size_t bit_writer_length(bit_writer_t *w) {
-    return w->byte_index;
+    return 8 * w->byte_index + w->last_byte_len;
 }
 
 uint8_t reverse_byte(uint8_t b) {

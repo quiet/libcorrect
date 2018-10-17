@@ -5,6 +5,7 @@
 typedef struct {
     uint8_t current_byte;
     unsigned int current_byte_len;
+    unsigned int last_byte_len;
     uint8_t *bytes;
     size_t byte_index;
     size_t len;

@@ -1,8 +1,7 @@
 #include "correct/convolutional/convolutional.h"
 
-size_t correct_convolutional_encode_len(correct_convolutional *conv, size_t msg_len) {
-    size_t msgbits = 8 * msg_len;
-    size_t encodedbits = conv->rate * (msgbits + conv->order + 1);
+size_t correct_convolutional_encode_len(correct_convolutional *conv, size_t msg_num_bits) {
+    size_t encodedbits = conv->rate * (msg_num_bits + conv->order + 1);
     return encodedbits;
 }
 
@@ -13,7 +12,7 @@ size_t correct_convolutional_encode_len(correct_convolutional *conv, size_t msg_
 // assume that encoded length is long enough?
 size_t correct_convolutional_encode(correct_convolutional *conv,
                                     const uint8_t *msg,
-                                    size_t msg_len,
+                                    size_t msg_num_bits,
                                     uint8_t *encoded) {
     // convolutional code convolves filter coefficients, given by
     //     the polynomial, with some history from our message.
@@ -25,13 +24,14 @@ size_t correct_convolutional_encode(correct_convolutional *conv,
     // e.g. if order is 7, then remove the 8th bit and beyond
     unsigned int shiftmask = (1 << conv->order) - 1;
 
-    size_t encoded_len_bits = correct_convolutional_encode_len(conv, msg_len);
+    size_t encoded_len_bits = correct_convolutional_encode_len(conv, msg_num_bits);
     size_t encoded_len = (encoded_len_bits % 8) ? (encoded_len_bits / 8 + 1) : (encoded_len_bits / 8);
     bit_writer_reconfigure(conv->bit_writer, encoded, encoded_len);
+    size_t msg_len = (msg_num_bits % 8) ? (msg_num_bits / 8 + 1) : (msg_num_bits / 8);
 
     bit_reader_reconfigure(conv->bit_reader, msg, msg_len);
 
-    for (size_t i = 0; i < 8 * msg_len; i++) {
+    for (size_t i = 0; i < msg_num_bits; i++) {
         // shiftregister has oldest bits on left, newest on right
         shiftregister <<= 1;
         shiftregister |= bit_reader_read(conv->bit_reader, 1);
