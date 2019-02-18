@@ -37,23 +37,23 @@ typedef struct {
     unsigned int renormalize_counter;
 } history_buffer;
 
-history_buffer *history_buffer_create(unsigned int min_traceback_length,
+DLL_EXPORT history_buffer *history_buffer_create(unsigned int min_traceback_length,
                                       unsigned int traceback_group_length,
                                       unsigned int renormalize_interval,
                                       unsigned int num_states,
                                       shift_register_t highbit);
-void history_buffer_destroy(history_buffer *buf);
-void history_buffer_reset(history_buffer *buf);
-void history_buffer_step(history_buffer *buf);
-uint8_t *history_buffer_get_slice(history_buffer *buf);
-shift_register_t history_buffer_search(history_buffer *buf,
+DLL_EXPORT void history_buffer_destroy(history_buffer *buf);
+DLL_EXPORT void history_buffer_reset(history_buffer *buf);
+DLL_EXPORT void history_buffer_step(history_buffer *buf);
+DLL_EXPORT uint8_t *history_buffer_get_slice(history_buffer *buf);
+DLL_EXPORT shift_register_t history_buffer_search(history_buffer *buf,
                                        const distance_t *distances,
                                        unsigned int search_every);
-void history_buffer_traceback(history_buffer *buf, shift_register_t bestpath,
+DLL_EXPORT void history_buffer_traceback(history_buffer *buf, shift_register_t bestpath,
                               unsigned int min_traceback_length,
                               bit_writer_t *output);
-void history_buffer_process_skip(history_buffer *buf, distance_t *distances,
+DLL_EXPORT void history_buffer_process_skip(history_buffer *buf, distance_t *distances,
                                  bit_writer_t *output, unsigned int skip);
-void history_buffer_process(history_buffer *buf, distance_t *distances,
+DLL_EXPORT void history_buffer_process(history_buffer *buf, distance_t *distances,
                             bit_writer_t *output);
-void history_buffer_flush(history_buffer *buf, bit_writer_t *output);
+DLL_EXPORT void history_buffer_flush(history_buffer *buf, bit_writer_t *output);

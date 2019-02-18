@@ -7,6 +7,11 @@
 #include "correct/convolutional/history_buffer.h"
 #include "correct/convolutional/error_buffer.h"
 
+#ifdef _MSC_VER
+#  include <intrin.h>
+#  define __builtin_popcount __popcnt
+#endif
+
 struct correct_convolutional {
     const unsigned int *table;  // size 2**order
     size_t rate;                // e.g. 2, 3...
@@ -23,18 +28,18 @@ struct correct_convolutional {
     error_buffer_t *errors;
 };
 
-correct_convolutional *_correct_convolutional_init(correct_convolutional *conv,
+DLL_EXPORT correct_convolutional *_correct_convolutional_init(correct_convolutional *conv,
                                                    size_t rate, size_t order,
                                                    const polynomial_t *poly);
-void _correct_convolutional_teardown(correct_convolutional *conv);
+DLL_EXPORT void _correct_convolutional_teardown(correct_convolutional *conv);
 
 // portable versions
-void _convolutional_decode_init(correct_convolutional *conv, unsigned int min_traceback, unsigned int traceback_length, unsigned int renormalize_interval);
-void convolutional_decode_warmup(correct_convolutional *conv, unsigned int sets,
+DLL_EXPORT void _convolutional_decode_init(correct_convolutional *conv, unsigned int min_traceback, unsigned int traceback_length, unsigned int renormalize_interval);
+DLL_EXPORT void convolutional_decode_warmup(correct_convolutional *conv, unsigned int sets,
                                  const uint8_t *soft);
-void convolutional_decode_inner(correct_convolutional *conv, unsigned int sets,
+DLL_EXPORT void convolutional_decode_inner(correct_convolutional *conv, unsigned int sets,
                                 const uint8_t *soft);
-void convolutional_decode_tail(correct_convolutional *conv, unsigned int sets,
+DLL_EXPORT void convolutional_decode_tail(correct_convolutional *conv, unsigned int sets,
                                const uint8_t *soft);
 #endif
 

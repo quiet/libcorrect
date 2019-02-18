@@ -11,7 +11,7 @@ static polynomial_t reed_solomon_build_generator(field_t field, unsigned int nro
     return polynomial_create_from_roots(field, nroots, roots);
 }
 
-correct_reed_solomon *correct_reed_solomon_create(field_operation_t primitive_polynomial, field_logarithm_t first_consecutive_root, field_logarithm_t generator_root_gap, size_t num_roots) {
+DLL_EXPORT correct_reed_solomon *correct_reed_solomon_create(field_operation_t primitive_polynomial, field_logarithm_t first_consecutive_root, field_logarithm_t generator_root_gap, size_t num_roots) {
     correct_reed_solomon *rs = calloc(1, sizeof(correct_reed_solomon));
     rs->field = field_create(primitive_polynomial);
 
@@ -34,7 +34,7 @@ correct_reed_solomon *correct_reed_solomon_create(field_operation_t primitive_po
     return rs;
 }
 
-void correct_reed_solomon_destroy(correct_reed_solomon *rs) {
+DLL_EXPORT void correct_reed_solomon_destroy(correct_reed_solomon *rs) {
     field_destroy(rs->field);
     polynomial_destroy(rs->generator);
     free(rs->generator_roots);
@@ -67,7 +67,7 @@ void correct_reed_solomon_destroy(correct_reed_solomon *rs) {
     free(rs);
 }
 
-void correct_reed_solomon_debug_print(correct_reed_solomon *rs) {
+DLL_EXPORT void correct_reed_solomon_debug_print(correct_reed_solomon *rs) {
     for (unsigned int i = 0; i < 256; i++) {
         printf("%3d  %3d    %3d  %3d\n", i, rs->field.exp[i], i, rs->field.log[i]);
     }

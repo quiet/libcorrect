@@ -3,11 +3,11 @@
 // BIG HEAPING TODO sort out the include mess
 #include "correct-sse.h"
 #ifdef _MSC_VER
-#include <intrin.h>
+#	include <intrin.h>
+#  define __builtin_popcount __popcnt
 #else
 #include <x86intrin.h>
 #endif
-
 
 struct correct_convolutional_sse {
     correct_convolutional base_conv;
