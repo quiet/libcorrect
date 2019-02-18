@@ -17,4 +17,4 @@ static inline distance_t metric_soft_distance_linear(unsigned int hard_x, const 
     return dist;
 }
 
-distance_t metric_soft_distance_quadratic(unsigned int hard_x, const uint8_t *soft_y, size_t len);
+DLL_EXPORT distance_t metric_soft_distance_quadratic(unsigned int hard_x, const uint8_t *soft_y, size_t len);

@@ -3,13 +3,18 @@
 #include <stdint.h>
 
 #ifndef _MSC_VER
-#include <unistd.h>
+# include <unistd.h>
+# ifdef __MINGW32__
+#   define ssize_t int
+# endif
+# define DLL_EXPORT
 #else
-#include <stddef.h>
+#	define DLL_EXPORT extern __declspec(dllexport)
+#	include <intrin.h>
+#	define __builtin_popcount __popcnt
+# include <stddef.h>
 typedef ptrdiff_t ssize_t;
 #endif
-
-
 
 // Convolutional Codes
 
@@ -41,14 +46,14 @@ typedef struct correct_convolutional correct_convolutional;
  *
  * If this call is successful, it returns a non-NULL pointer.
  */
-correct_convolutional *correct_convolutional_create(size_t inv_rate, size_t order,
+DLL_EXPORT correct_convolutional *correct_convolutional_create(size_t inv_rate, size_t order,
                                                     const correct_convolutional_polynomial_t *poly);
 
 /* correct_convolutional_destroy releases all resources associated
  * with conv. This pointer should not be used for further calls
  * after calling destroy.
  */
-void correct_convolutional_destroy(correct_convolutional *conv);
+DLL_EXPORT void correct_convolutional_destroy(correct_convolutional *conv);
 
 /* correct_convolutional_encode_len returns the number of *bits*
  * in a msg_len of given size, in *bytes*. In order to convert
@@ -57,7 +62,7 @@ void correct_convolutional_destroy(correct_convolutional *conv);
  * length/8 + 1. If it is zero, then the length is just
  * length/8.
  */
-size_t correct_convolutional_encode_len(correct_convolutional *conv, size_t msg_len);
+DLL_EXPORT size_t correct_convolutional_encode_len(correct_convolutional *conv, size_t msg_len);
 
 /* correct_convolutional_encode uses the given conv instance to
  * encode a block of data and write it to encoded. The length of
@@ -70,7 +75,7 @@ size_t correct_convolutional_encode_len(correct_convolutional *conv, size_t msg_
  * this is not an exact multiple of 8, then it occupies an additional
  * byte.
  */
-size_t correct_convolutional_encode(correct_convolutional *conv, const uint8_t *msg, size_t msg_len,
+DLL_EXPORT size_t correct_convolutional_encode(correct_convolutional *conv, const uint8_t *msg, size_t msg_len,
                                     uint8_t *encoded);
 
 /* correct_convolutional_decode uses the given conv instance to
@@ -96,7 +101,7 @@ size_t correct_convolutional_encode(correct_convolutional *conv, const uint8_t *
  * This function returns the number of bytes written to msg. If
  * it fails, it returns -1.
  */
-ssize_t correct_convolutional_decode(correct_convolutional *conv, const uint8_t *encoded,
+DLL_EXPORT ssize_t correct_convolutional_decode(correct_convolutional *conv, const uint8_t *encoded,
                                      size_t num_encoded_bits, uint8_t *msg);
 
 /* correct_convolutional_decode_soft uses the given conv instance
@@ -120,7 +125,7 @@ ssize_t correct_convolutional_decode(correct_convolutional *conv, const uint8_t 
  * This function returns the number of bytes written to msg. If
  * it fails, it returns -1.
  */
-ssize_t correct_convolutional_decode_soft(correct_convolutional *conv,
+DLL_EXPORT ssize_t correct_convolutional_decode_soft(correct_convolutional *conv,
                                           const correct_convolutional_soft_t *encoded,
                                           size_t num_encoded_bits, uint8_t *msg);
 
@@ -195,7 +200,7 @@ static const uint16_t correct_rs_primitive_polynomial_ccsds =
  * generator_root_gap are 1 and 1. Not all combinations of
  * values produce valid codes.
  */
-correct_reed_solomon *correct_reed_solomon_create(uint16_t primitive_polynomial,
+DLL_EXPORT correct_reed_solomon *correct_reed_solomon_create(uint16_t primitive_polynomial,
                                                   uint8_t first_consecutive_root,
                                                   uint8_t generator_root_gap,
                                                   size_t num_roots);
@@ -214,7 +219,7 @@ correct_reed_solomon *correct_reed_solomon_create(uint16_t primitive_polynomial,
  *
  * This function returns the number of bytes written to encoded.
  */
-ssize_t correct_reed_solomon_encode(correct_reed_solomon *rs, const uint8_t *msg, size_t msg_length,
+DLL_EXPORT ssize_t correct_reed_solomon_encode(correct_reed_solomon *rs, const uint8_t *msg, size_t msg_length,
                                     uint8_t *encoded);
 
 /* correct_reed_solomon_decode uses the rs instance to decode
@@ -232,7 +237,7 @@ ssize_t correct_reed_solomon_encode(correct_reed_solomon *rs, const uint8_t *msg
  * This function returns a positive number of bytes written to msg
  * if it has decoded or -1 if it has encountered an error.
  */
-ssize_t correct_reed_solomon_decode(correct_reed_solomon *rs, const uint8_t *encoded,
+DLL_EXPORT ssize_t correct_reed_solomon_decode(correct_reed_solomon *rs, const uint8_t *encoded,
                                     size_t encoded_length, uint8_t *msg);
 
 /* correct_reed_solomon_decode_with_erasures uses the rs
@@ -262,7 +267,7 @@ ssize_t correct_reed_solomon_decode(correct_reed_solomon *rs, const uint8_t *enc
  * This function returns a positive number of bytes written to msg
  * if it has decoded or -1 if it has encountered an error.
  */
-ssize_t correct_reed_solomon_decode_with_erasures(correct_reed_solomon *rs, const uint8_t *encoded,
+DLL_EXPORT ssize_t correct_reed_solomon_decode_with_erasures(correct_reed_solomon *rs, const uint8_t *encoded,
                                                   size_t encoded_length,
                                                   const uint8_t *erasure_locations,
                                                   size_t erasure_length, uint8_t *msg);
@@ -271,7 +276,7 @@ ssize_t correct_reed_solomon_decode_with_erasures(correct_reed_solomon *rs, cons
  * associated with rs. This pointer should not be
  * used for any functions after this call.
  */
-void correct_reed_solomon_destroy(correct_reed_solomon *rs);
+DLL_EXPORT void correct_reed_solomon_destroy(correct_reed_solomon *rs);
 
 #endif
 

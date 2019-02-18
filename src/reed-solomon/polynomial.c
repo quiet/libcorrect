@@ -1,20 +1,20 @@
 #include "correct/reed-solomon/polynomial.h"
 
-polynomial_t polynomial_create(unsigned int order) {
+DLL_EXPORT polynomial_t polynomial_create(unsigned int order) {
     polynomial_t polynomial;
     polynomial.coeff = malloc(sizeof(field_element_t) * (order + 1));
     polynomial.order = order;
     return polynomial;
 }
 
-void polynomial_destroy(polynomial_t polynomial) {
+DLL_EXPORT void polynomial_destroy(polynomial_t polynomial) {
     free(polynomial.coeff);
 }
 
 // if you want a full multiplication, then make res.order = l.order + r.order
 // but if you just care about a lower order, e.g. mul mod x^i, then you can select
 //    fewer coefficients
-void polynomial_mul(field_t field, polynomial_t l, polynomial_t r, polynomial_t res) {
+DLL_EXPORT void polynomial_mul(field_t field, polynomial_t l, polynomial_t r, polynomial_t res) {
     // perform an element-wise multiplication of two polynomials
     memset(res.coeff, 0, sizeof(field_element_t) * (res.order + 1));
     for (unsigned int i = 0; i <= l.order; i++) {
@@ -29,7 +29,7 @@ void polynomial_mul(field_t field, polynomial_t l, polynomial_t r, polynomial_t 
     }
 }
 
-void polynomial_mod(field_t field, polynomial_t dividend, polynomial_t divisor, polynomial_t mod) {
+DLL_EXPORT void polynomial_mod(field_t field, polynomial_t dividend, polynomial_t divisor, polynomial_t mod) {
     // find the polynomial remainder of dividend mod divisor
     // do long division and return just the remainder (written to mod)
 
@@ -71,7 +71,7 @@ void polynomial_mod(field_t field, polynomial_t dividend, polynomial_t divisor, 
     }
 }
 
-void polynomial_formal_derivative(field_t field, polynomial_t poly, polynomial_t der) {
+DLL_EXPORT void polynomial_formal_derivative(field_t field, polynomial_t poly, polynomial_t der) {
     // if f(x) = a(n)*x^n + ... + a(1)*x + a(0)
     // then f'(x) = n*a(n)*x^(n-1) + ... + 2*a(2)*x + a(1)
     // where n*a(n) = sum(k=1, n, a(n)) e.g. the nth sum of a(n) in GF(2^8)
@@ -86,7 +86,7 @@ void polynomial_formal_derivative(field_t field, polynomial_t poly, polynomial_t
     }
 }
 
-field_element_t polynomial_eval(field_t field, polynomial_t poly, field_element_t val) {
+DLL_EXPORT field_element_t polynomial_eval(field_t field, polynomial_t poly, field_element_t val) {
     // evaluate the polynomial poly at a particular element val
     if (val == 0) {
         return poly.coeff[0];
@@ -110,7 +110,7 @@ field_element_t polynomial_eval(field_t field, polynomial_t poly, field_element_
     return res;
 }
 
-field_element_t polynomial_eval_lut(field_t field, polynomial_t poly, const field_logarithm_t *val_exp) {
+DLL_EXPORT field_element_t polynomial_eval_lut(field_t field, polynomial_t poly, const field_logarithm_t *val_exp) {
     // evaluate the polynomial poly at a particular element val
     // in this case, all of the logarithms of the successive powers of val have been precalculated
     // this removes the extra work we'd have to do to calculate val_exponentiated each time
@@ -131,7 +131,7 @@ field_element_t polynomial_eval_lut(field_t field, polynomial_t poly, const fiel
     return res;
 }
 
-field_element_t polynomial_eval_log_lut(field_t field, polynomial_t poly_log, const field_logarithm_t *val_exp) {
+DLL_EXPORT field_element_t polynomial_eval_log_lut(field_t field, polynomial_t poly_log, const field_logarithm_t *val_exp) {
     // evaluate the log_polynomial poly at a particular element val
     // like polynomial_eval_lut, the logarithms of the successive powers of val have been
     //   precomputed
@@ -156,7 +156,7 @@ field_element_t polynomial_eval_log_lut(field_t field, polynomial_t poly_log, co
     return res;
 }
 
-void polynomial_build_exp_lut(field_t field, field_element_t val, unsigned int order, field_logarithm_t *val_exp) {
+DLL_EXPORT void polynomial_build_exp_lut(field_t field, field_element_t val, unsigned int order, field_logarithm_t *val_exp) {
     // create the lookup table of successive powers of val used by polynomial_eval_lut
     field_logarithm_t val_exponentiated = field.log[1];
     field_logarithm_t val_log = field.log[val];
@@ -170,7 +170,7 @@ void polynomial_build_exp_lut(field_t field, field_element_t val, unsigned int o
     }
 }
 
-polynomial_t polynomial_init_from_roots(field_t field, unsigned int nroots, field_element_t *roots, polynomial_t poly, polynomial_t *scratch) {
+DLL_EXPORT polynomial_t polynomial_init_from_roots(field_t field, unsigned int nroots, field_element_t *roots, polynomial_t poly, polynomial_t *scratch) {
     unsigned int order = nroots;
     polynomial_t l;
     field_element_t l_coeff[2];
@@ -210,7 +210,7 @@ polynomial_t polynomial_init_from_roots(field_t field, unsigned int nroots, fiel
     return poly;
 }
 
-polynomial_t polynomial_create_from_roots(field_t field, unsigned int nroots, field_element_t *roots) {
+DLL_EXPORT polynomial_t polynomial_create_from_roots(field_t field, unsigned int nroots, field_element_t *roots) {
     polynomial_t poly = polynomial_create(nroots);
     unsigned int order = nroots;
     polynomial_t l;

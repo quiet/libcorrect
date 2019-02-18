@@ -97,4 +97,13 @@ add_custom_target(shim DEPENDS fec_shim_static fec_shim_shared fec-shim-h)
 install(TARGETS fec_shim_static fec_shim_shared
         DESTINATION lib
         OPTIONAL)
+
 install(FILES ${PROJECT_BINARY_DIR}/include/fec.h DESTINATION "${CMAKE_INSTALL_PREFIX}/include" OPTIONAL)
+
+# Debian Package
+SET(CPACK_GENERATOR "DEB")
+SET(CPACK_PACKAGE_NAME "libcorrect")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Brian Armstrong <brian.armstrong.ece+github@gmail.com>")
+SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "C library for Convolutional codes and Reed-Solomon")
+INCLUDE(CPack)
+
