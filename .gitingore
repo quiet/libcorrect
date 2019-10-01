@@ -1,0 +1,5 @@
+build/
+build_current/
+resolved_dependencies/
+resolve_symlinks/
+*~
