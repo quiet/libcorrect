@@ -67,14 +67,17 @@ static inline void field_destroy(field_t field) {
 }
 
 static inline field_element_t field_add(field_t field, field_element_t l, field_element_t r) {
+    (void)field;
     return l ^ r;
 }
 
 static inline field_element_t field_sub(field_t field, field_element_t l, field_element_t r) {
+    (void)field;
     return l ^ r;
 }
 
 static inline field_element_t field_sum(field_t field, field_element_t elem, unsigned int n) {
+    (void)field;
     // we'll do a closed-form expression of the sum, although we could also
     //   choose to call field_add n times
 
@@ -129,6 +132,7 @@ static inline field_element_t field_div(field_t field, field_element_t l, field_
 }
 
 static inline field_logarithm_t field_mul_log(field_t field, field_logarithm_t l, field_logarithm_t r) {
+    (void)field;
     // this function performs the equivalent of field_mul on two logarithms
     // we save a little time by skipping the lookup step at the beginning
     field_operation_t res = (field_operation_t)l + (field_operation_t)r;
@@ -144,6 +148,7 @@ static inline field_logarithm_t field_mul_log(field_t field, field_logarithm_t l
 }
 
 static inline field_logarithm_t field_div_log(field_t field, field_logarithm_t l, field_logarithm_t r) {
+    (void)field;
     // like field_mul_log, this performs field_div without going through a field_element_t
     field_operation_t res = (field_operation_t)255 + (field_operation_t)l - (field_operation_t)r;
     if (res > 255) {

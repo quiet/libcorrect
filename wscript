@@ -40,19 +40,19 @@ def build(bld):
 
     bld.stlib(name = 'libcorrect',
         features = 'c cstlib',
-        target='libcorrect',
+        target='staticcorrect',
         includes='../include',
         source=bld.path.ant_glob('src/**/*.c'),
         use=['libcorrect_includes']
     )    
 
-    bld.shlib(name = 'libcorrect_shared',
-        features = 'c',
-        target='libcorrect_shared',
-        includes='../include',
-        source=bld.path.ant_glob('src/**/*.c'),
-        use=['libcorrect_includes']
-    )    
+    # bld.shlib(name = 'libcorrect_shared',
+    #     features = 'c',
+    #     target='libcorrect_shared',
+    #     includes='../include',
+    #     source=bld.path.ant_glob('src/**/*.c'),
+    #     use=['libcorrect_includes']
+    # )    
     
     # Build Test
 

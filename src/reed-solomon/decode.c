@@ -79,7 +79,7 @@ static unsigned int reed_solomon_find_error_locator(correct_reed_solomon *rs, si
             // locator = locator - last_locator
             // we will also update last_locator to be locator before this loop takes place
             field_element_t temp;
-            for (int j = 0; j <= (rs->last_error_locator.order + delay_length); j++) {
+            for (unsigned int j = 0; j <= (rs->last_error_locator.order + delay_length); j++) {
                 temp = rs->error_locator.coeff[j];
                 rs->error_locator.coeff[j] =
                     field_add(rs->field, rs->error_locator.coeff[j], rs->last_error_locator.coeff[j]);
@@ -198,6 +198,7 @@ void reed_solomon_find_error_values(correct_reed_solomon *rs) {
 void reed_solomon_find_error_locations(field_t field, field_logarithm_t generator_root_gap,
                                        field_element_t *error_roots, field_logarithm_t *error_locations,
                                        unsigned int num_errors, unsigned int num_skip) {
+    (void)num_skip;
     for (unsigned int i = 0; i < num_errors; i++) {
         // the error roots are the reciprocals of the error locations, so div 1 by them
 

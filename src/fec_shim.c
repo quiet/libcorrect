@@ -166,6 +166,7 @@ void *create_viterbi27(int num_decoded_bits) {
 void delete_viterbi27(void *vit) { delete_viterbi(vit); }
 
 int init_viterbi27(void *vit, int _) {
+    (void) _; 
     init_viterbi(vit);
     return 0;
 }
@@ -178,6 +179,7 @@ int update_viterbi27_blk(void *vit, unsigned char *encoded_soft,
 
 int chainback_viterbi27(void *vit, unsigned char *decoded,
                         unsigned int num_decoded_bits, unsigned int _) {
+    (void) _;
     chainback_viterbi(vit, decoded, num_decoded_bits);
     return 0;
 }
@@ -190,6 +192,7 @@ void *create_viterbi29(int num_decoded_bits) {
 void delete_viterbi29(void *vit) { delete_viterbi(vit); }
 
 int init_viterbi29(void *vit, int _) {
+    (void) _; 
     init_viterbi(vit);
     return 0;
 }
@@ -202,6 +205,7 @@ int update_viterbi29_blk(void *vit, unsigned char *encoded_soft,
 
 int chainback_viterbi29(void *vit, unsigned char *decoded,
                         unsigned int num_decoded_bits, unsigned int _) {
+    (void) _;
     chainback_viterbi(vit, decoded, num_decoded_bits);
     return 0;
 }
@@ -214,6 +218,7 @@ void *create_viterbi39(int num_decoded_bits) {
 void delete_viterbi39(void *vit) { delete_viterbi(vit); }
 
 int init_viterbi39(void *vit, int _) {
+    (void) _;
     init_viterbi(vit);
     return 0;
 }
@@ -226,6 +231,7 @@ int update_viterbi39_blk(void *vit, unsigned char *encoded_soft,
 
 int chainback_viterbi39(void *vit, unsigned char *decoded,
                         unsigned int num_decoded_bits, unsigned int _) {
+    (void) _;
     chainback_viterbi(vit, decoded, num_decoded_bits);
     return 0;
 }
@@ -238,6 +244,7 @@ void *create_viterbi615(int num_decoded_bits) {
 void delete_viterbi615(void *vit) { delete_viterbi(vit); }
 
 int init_viterbi615(void *vit, int _) {
+    (void) _;
     init_viterbi(vit);
     return 0;
 }
@@ -250,6 +257,7 @@ int update_viterbi615_blk(void *vit, unsigned char *encoded_soft,
 
 int chainback_viterbi615(void *vit, unsigned char *decoded,
                          unsigned int num_decoded_bits, unsigned int _) {
+    (void) _;
     chainback_viterbi(vit, decoded, num_decoded_bits);
     return 0;
 }

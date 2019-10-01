@@ -53,7 +53,7 @@ void bit_writer_write_bitlist(bit_writer_t *w, uint8_t *l, size_t len) {
 
     uint16_t b = w->current_byte;
 
-    for (ptrdiff_t i = 0; i < close_len; i++) {
+    for (ptrdiff_t i = 0; i < (long)close_len; i++) {
         b |= l[i];
         b <<= 1;
     }
@@ -88,7 +88,7 @@ void bit_writer_write_bitlist(bit_writer_t *w, uint8_t *l, size_t len) {
     len -= 8*full_bytes;
 
     b = 0;
-    for (ptrdiff_t i = 0; i < len; i++) {
+    for (ptrdiff_t i = 0; i < (long)len; i++) {
         b |= l[i];
         b <<= 1;
     }
@@ -111,7 +111,7 @@ void bit_writer_write_bitlist_reversed(bit_writer_t *w, uint8_t *l, size_t len) 
 
         b = w->current_byte;
 
-        for (ptrdiff_t i = 0; i < close_len; i++) {
+        for (ptrdiff_t i = 0; i < (long)close_len; i++) {
             b |= *l;
             b <<= 1;
             l--;
@@ -143,7 +143,7 @@ void bit_writer_write_bitlist_reversed(bit_writer_t *w, uint8_t *l, size_t len) 
     len -= 8*full_bytes;
 
     b = 0;
-    for (ptrdiff_t i = 0; i < len; i++) {
+    for (ptrdiff_t i = 0; i < (long)len; i++) {
         b |= *l;
         b <<= 1;
         l--;

@@ -9,6 +9,13 @@ libcorrect accomplishes this task with two algorithms, [Convolutional codes](htt
 
 libcorrect is a performant, BSD-licensed library. It is also the author's hope that this library's contents could help others learn how its algorithms work.
 
+AU Customisation's
+------------------
+
+1. In convolutional codes we have cast `size_t` to `long` because of type comparison.
+2. in `fec_shim.c` we have cast all variables named `_` to `void` because they are unused 
+
+
 Design goals
 -----------
 
