@@ -41,7 +41,7 @@ def build(bld):
     bld.stlib(name = 'libcorrect_static',
         features = 'c cstlib',
         target='libcorrect_static',
-        includes='../include/libcorrect',
+        includes='include/libcorrect',
         source=bld.path.ant_glob('src/**/*.c'),
         use=['libcorrect_includes']
     )    
