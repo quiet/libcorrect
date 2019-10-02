@@ -1,0 +1,5 @@
+def build(bld):
+    bld(features = 'cxx cxxprogram',
+        target = 'basic_example',
+        source = 'basic_example.cpp',
+        use = ['libcorrect_includes', 'libcorrect_static'])
