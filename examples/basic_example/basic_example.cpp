@@ -1,4 +1,6 @@
+extern "C"{
 #include <libcorrect/correct.h>
+}
 
 #include <cstdint> 
 int main(void)
