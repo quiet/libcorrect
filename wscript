@@ -26,9 +26,9 @@ def configure(cnf) :
     cnf.load('compiler_c')
     
     cnf.env.append_value('LINKFLAGS', ['-pthread'])
-    cnf.env.append_value('CXXFLAGS', ['-msse3', '-std=c++17', '-Wall', '-Werror', '-Wextra', '-O3'])
+    cnf.env.append_value('CXXFLAGS', ['-std=c++17', '-Wall', '-Werror', '-Wextra', '-O3'])
     cnf.env.append_value('CFLAGS',
-                         ['-msse3', '-Wall', '-Werror', '-Wextra', '-O3',
+                         ['-Wall', '-Werror', '-Wextra', '-O3',
                           '-DNDEBUG', '-fPIC'])
     
 
