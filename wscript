@@ -5,7 +5,7 @@ from waflib.Tools.compiler_c import c_compiler
 
 # from scripts.waf import utils
 
-# import sys
+import sys
 
 APPNAME = 'libcodes'
 VERSION = '1.0.0'
@@ -30,6 +30,19 @@ def configure(cnf) :
     cnf.env.append_value('CFLAGS',
                          ['-Wall', '-Werror', '-Wextra', '-O3',
                           '-DNDEBUG', '-fPIC'])
+
+    if sys.platform == 'darwin':
+        
+        cnf.env.append_value('CXXFLAGS', ['-stdlib=libc++'])
+
+        import platform
+        macos_ver = platform.mac_ver()[0]
+        if not macos_ver.startswith('10.15'):
+            cnf.env.append_value('LINKFLAGS', ['-lc++fs', '-L/usr/local/opt/llvm/lib'])
+        else:
+            cnf.env.append_value('CXXFLAGS', ['-isysroot/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk', '-I/usr/local/include'])
+            cnf.env.append_value('CFLAGS', ['-isysroot/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk', '-I/usr/local/include'])
+            
     
 
 def build(bld):
