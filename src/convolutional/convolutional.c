@@ -5,7 +5,7 @@
 correct_convolutional *_correct_convolutional_init(correct_convolutional *conv,
                                                    size_t rate, size_t order,
                                                    const polynomial_t *poly) {
-    if (order > 8 * sizeof(shift_register_t)) {
+    if (order >= 8 * sizeof(shift_register_t)) {
         // XXX turn this into an error code
         // printf("order must be smaller than 8 * sizeof(shift_register_t)\n");
         return NULL;
