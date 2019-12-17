@@ -25,7 +25,7 @@ pair_lookup_t pair_lookup_create(unsigned int rate,
     pair_lookup_t pairs;
 
     pairs.keys = malloc(sizeof(unsigned int) * (1 << (order - 1)));
-    pairs.outputs = calloc((1 << (rate * 2)), sizeof(unsigned int));
+    pairs.outputs = calloc((1 << (order - 1)) + 1, sizeof(unsigned int));
     unsigned int *inv_outputs = calloc((1 << (rate * 2)), sizeof(unsigned int));
     unsigned int output_counter = 1;
     // for every (even-numbered) shift register state, find the concatenated output of the state
