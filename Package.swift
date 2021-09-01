@@ -41,7 +41,10 @@ let package = Package(
                 "include/correct/util",
 
             ],
-            publicHeadersPath: "include"
+            publicHeadersPath: "include",
+            cSettings: [
+                .unsafeFlags(["-Wno-module-import-in-extern-c"])
+            ]
         ),
     ]
 )
