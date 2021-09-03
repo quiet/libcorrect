@@ -1,5 +1,10 @@
 #ifndef CORRECT_H
 #define CORRECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #ifndef _MSC_VER
@@ -272,6 +277,10 @@ ssize_t correct_reed_solomon_decode_with_erasures(correct_reed_solomon *rs, cons
  * used for any functions after this call.
  */
 void correct_reed_solomon_destroy(correct_reed_solomon *rs);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
