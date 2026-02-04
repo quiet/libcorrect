@@ -10,7 +10,11 @@ ssize_t correct_reed_solomon_encode(correct_reed_solomon *rs, const uint8_t *msg
         // message goes from high order to low order but libcorrect polynomials go low to high
         // so we reverse on the way in and on the way out
         // we'd have to do a copy anyway so this reversal should be free
-        rs->encoded_polynomial.coeff[rs->encoded_polynomial.order - (i + pad_length)] = msg[i];
+        field_element_t element = msg[i];
+        if (msg[i] > rs->field.largest_element) {
+            return -1;
+        }
+        rs->encoded_polynomial.coeff[rs->encoded_polynomial.order - (i + pad_length)] = element;
     }
 
     // 0-fill the rest of the coefficients -- this length will always be > 0

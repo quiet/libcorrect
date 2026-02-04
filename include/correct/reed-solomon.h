@@ -24,6 +24,8 @@ typedef uint16_t field_operation_t;
 typedef struct {
     const field_element_t *exp;
     const field_logarithm_t *log;
+    unsigned int field_size;
+    unsigned int largest_element;
 } field_t;
 
 typedef struct {
