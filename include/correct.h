@@ -3,7 +3,11 @@
 #include <stdint.h>
 
 #ifndef _MSC_VER
+#if defined(unix) || defined(__unix__) || defined(__unix)
 #include <unistd.h>
+#else
+#define ssize_t int
+#endif
 #else
 #include <stddef.h>
 typedef ptrdiff_t ssize_t;
