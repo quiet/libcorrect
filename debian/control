@@ -1,0 +1,13 @@
+Source: libcorrect
+Section: devel
+Priority: optional
+Maintainer: Brian Armstrong <lucas@teske.com.br>
+Build-Depends: cmake, build-essential
+Homepage: https://github.com/quiet/libcorrect
+
+Package: libcorrect
+Architecture: any
+Depends:
+Description: libcorrect is a library for Forward Error Correction.
+ By using libcorrect, you can encode extra redundancy into a packet of data and then send it across a lossy channel.
+ When the packet is received, it can be decoded to recover the original, pre-encoded data.

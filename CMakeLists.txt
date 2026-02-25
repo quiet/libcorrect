@@ -34,20 +34,18 @@ endif(MSVC)
 find_library(FEC fec)
 CHECK_LIBRARY_EXISTS(FEC dotprod "" HAVE_LIBFEC)
 
-if(NOT CMAKE_CROSSCOMPILING)
-  # Check if host machine can compile with SSE 4.1 intrinsic
-  cmake_push_check_state(RESET)
-  set(CMAKE_REQUIRED_DEFINITIONS -march=native)
-  check_c_source_compiles("
-    #include <x86intrin.h>
-    int main() {
-      __m128i a;
-      __m128i b;
-      __m128i c = _mm_min_epu16(a, b);
-      return 0;
-    }" HAVE_SSE)
-  cmake_pop_check_state()
-endif()
+# Check if host machine can compile with SSE 4.1 intrinsic
+cmake_push_check_state(RESET)
+set(CMAKE_REQUIRED_DEFINITIONS -march=native)
+check_c_source_compiles("
+  #include <x86intrin.h>
+  int main() {
+    __m128i a;
+    __m128i b;
+    __m128i c = _mm_min_epu16(a, b);
+    return 0;
+  }" HAVE_SSE)
+cmake_pop_check_state()
 
 if(HAVE_SSE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1")
@@ -99,4 +97,13 @@ add_custom_target(shim DEPENDS fec_shim_static fec_shim_shared fec-shim-h)
 install(TARGETS fec_shim_static fec_shim_shared
         DESTINATION lib
         OPTIONAL)
+
 install(FILES ${PROJECT_BINARY_DIR}/include/fec.h DESTINATION "${CMAKE_INSTALL_PREFIX}/include" OPTIONAL)
+
+# Debian Package
+SET(CPACK_GENERATOR "DEB")
+SET(CPACK_PACKAGE_NAME "libcorrect")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Brian Armstrong <brian.armstrong.ece+github@gmail.com>")
+SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "C library for Convolutional codes and Reed-Solomon")
+INCLUDE(CPack)
+
